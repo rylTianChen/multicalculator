@@ -29,9 +29,7 @@ A powerful multi-mode calculator with high-precision integer arithmetic, standar
 
 ## 🖥️ Screenshots
 
-![Standard Mode](screenshots/std_mode_shot.jpg)
 ![High-Precision Mode](screenshots/hp_mode_shot.jpg)
-![Number Theory Mode](screenshots/nt_mode_shot.jpg)
 
 ---
 
