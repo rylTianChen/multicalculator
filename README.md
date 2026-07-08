@@ -1,9 +1,8 @@
 # High-Precision Multi-Function Calculator
 
-[![License](https://img.shields.io/badge/license-LGPL--3.0-blue.svg)]()
+[![License](https://img.shields.io/badge/license-LGPL--3.0-blue.svg)](LICENSE)
 [![Qt](https://img.shields.io/badge/Qt-6.11.1-brightgreen.svg)](https://qt.io)
-[![Platform](https://img.shields.io/badge/platform-Windows10%7CWindows11-lightgrey.svg)]()
-![C++17](https://img.shields.io/badge/language-C%2B%2B17-blue)
+[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)]()
 
 A powerful multi-mode calculator with high-precision integer arithmetic, standard decimal calculations, and number theory tools.
 
@@ -29,19 +28,8 @@ A powerful multi-mode calculator with high-precision integer arithmetic, standar
 
 ## 🖥️ Screenshots
 
-### Standard Mode
-Basic decimal arithmetic for everyday calculations.
-
 ![Standard Mode](screenshots/std_mode_shot.jpg)
-
-### High-Precision Mode
-Arbitrary-precision integer arithmetic with bitwise operations and automatic scientific notation for large results.
-
 ![High-Precision Mode](screenshots/hp_mode_shot.jpg)
-
-### Number Theory Tools
-Simplify radicals, factor integers, and compute GCD/LCM.
-
 ![Number Theory Mode](screenshots/nt_mode_shot.jpg)
 
 ---
