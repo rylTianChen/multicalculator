@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-LGPL--3.0-blue.svg)]()
 [![Qt](https://img.shields.io/badge/Qt-6.11.1-brightgreen.svg)](https://qt.io)
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)]()
-![C++17](https://img.shields.io/badge/Language-C%2B%2B11-blue)()
+![C++17](https://img.shields.io/badge/Language-C%2B%2B11-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows10%7CWindows11-lightgray)
 
 A powerful multi-mode calculator with high-precision integer arithmetic, standard decimal calculations, and number theory tools.
