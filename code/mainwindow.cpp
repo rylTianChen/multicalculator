@@ -69,7 +69,7 @@ constexpr int DIRECT_SHOW_LENGTH_LIMIT = 100;
 
 void MainWindow::setupUI(){
     setFixedSize(500, 650); // 设置窗口大小
-    setWindowTitle("高精度多功能计算器");
+    setWindowTitle(tr("高精度多功能计算器"));
 
     central_widget = new QWidget(this);
     setCentralWidget(central_widget);
@@ -81,16 +81,18 @@ void MainWindow::setupUI(){
     btn_layout = new QHBoxLayout();
     btn_layout->setSpacing(10); // 按钮之间间距
 
-    // 创建三个按钮
-    std_md_btn = new QPushButton("标准模式");
-    hp_md_btn = new QPushButton("高精度模式");
-    nt_md_btn = new QPushButton("数论工具");
+    // 创建按钮
+    std_md_btn = new QPushButton(tr("标准模式"));
+    hp_md_btn = new QPushButton(tr("高精度模式"));
+    nt_md_btn = new QPushButton(tr("数论工具"));
+    set_btn = new QPushButton("⚙");
 
     // 设置按钮固定大小
-    int btn_width = 160, btn_height = 40;
+    int btn_width = 120, btn_height = 40;
     std_md_btn->setFixedSize(btn_width, btn_height);
     hp_md_btn->setFixedSize(btn_width, btn_height);
     nt_md_btn->setFixedSize(btn_width, btn_height);
+    set_btn->setFixedSize(40, btn_height);
 
     // 设置按钮字体
     QFont btn_font;
@@ -98,25 +100,29 @@ void MainWindow::setupUI(){
     std_md_btn->setFont(btn_font);
     hp_md_btn->setFont(btn_font);
     nt_md_btn->setFont(btn_font);
+    set_btn->setFont(btn_font);
 
     // 把按钮添加到水平布局
     btn_layout->addStretch();
     btn_layout->addWidget(std_md_btn);
     btn_layout->addWidget(hp_md_btn);
     btn_layout->addWidget(nt_md_btn);
+    btn_layout->addWidget(set_btn);
     btn_layout->addStretch();
 
     stacked_widget = new QStackedWidget(); // 创建堆叠窗口,用于切换面板
 
-    // 创建三个面板
+    // 创建面板
     setupStdMd();
     setupHpMd();
     setupNtMd();
+    setupSet();
 
     // 把三个面板加入堆叠窗口
     stacked_widget->addWidget(std_md_panel); // 索引0
     stacked_widget->addWidget(hp_md_panel); // 索引1
     stacked_widget->addWidget(nt_md_panel); // 索引2
+    stacked_widget->addWidget(set_panel); // 索引3
 
     // 组装布局
     main_layout->addLayout(btn_layout); // 顶部按钮栏
@@ -126,10 +132,10 @@ void MainWindow::setupUI(){
     connect(std_md_btn, &QPushButton::clicked, this, &MainWindow::switchTOstd);
     connect(hp_md_btn, &QPushButton::clicked, this, &MainWindow::switchTOhp);
     connect(nt_md_btn, &QPushButton::clicked, this, &MainWindow::switchTOnt);
+    connect(set_btn, &QPushButton::clicked, this, &MainWindow::switchTOset);
 
     switchTOstd(); // 默认标准模式
 
-    setWindowFlags(windowFlags() & ~Qt::WindowSystemMenuHint);
     this->installEventFilter(this); // 监听自己的键盘事件
 }
 
@@ -157,6 +163,10 @@ void MainWindow::switchTOhp(){
 void MainWindow::switchTOnt(){
     fadeSwitch(2); // nt面板索引为2
     updateBtnStyle(nt_md_btn);
+}
+void MainWindow::switchTOset(){
+    fadeSwitch(3); // 设置面板索引为3
+    updateBtnStyle(set_btn);
 }
 
 void MainWindow::updateBtnStyle(QPushButton* active_btn){
@@ -188,6 +198,7 @@ void MainWindow::updateBtnStyle(QPushButton* active_btn){
     std_md_btn->setStyleSheet(normal_style);
     hp_md_btn->setStyleSheet(normal_style);
     nt_md_btn->setStyleSheet(normal_style);
+    set_btn->setStyleSheet(normal_style);
     active_btn->setStyleSheet(active_style);
 }
 
@@ -198,7 +209,7 @@ void MainWindow::setupStdMd(){
     layout->setContentsMargins(10, 10, 10, 10);
 
     // 介绍文字 - 固定高度
-    QLabel* intro = new QLabel("支持小数，运算范围：-2e9 ~ +2e9，适合日常使用");
+    QLabel* intro = new QLabel(tr("支持小数，运算范围：-2e9 ~ +2e9，适合日常使用"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
     intro->setFixedHeight(25);  // 固定高度
@@ -207,7 +218,7 @@ void MainWindow::setupStdMd(){
 
     // 输入框
     std_input = new QLineEdit();
-    std_input->setPlaceholderText("输入表达式，例如: 123 + 456*789");
+    std_input->setPlaceholderText(tr("输入表达式，例如: 123 + 456*789"));
     std_input->setStyleSheet("font-size: 18px; padding: 8px;");
     std_input->setReadOnly(true);
     layout->addWidget(std_input);
@@ -216,12 +227,12 @@ void MainWindow::setupStdMd(){
     QHBoxLayout* output_layout = new QHBoxLayout();
     std_output = new QTextEdit();
     std_output->setReadOnly(true);
-    std_output->setPlaceholderText("计算结果");
+    std_output->setPlaceholderText(tr("计算结果"));
     std_output->setStyleSheet("font-size: 16px; background-color: #f5f5f5;");
     std_output->setMaximumHeight(100);
     output_layout->addWidget(std_output);
 
-    QPushButton* copy_btn = new QPushButton("复制");
+    QPushButton* copy_btn = new QPushButton(tr("复制"));
     copy_btn->setFixedSize(60, 100);
     copy_btn->setStyleSheet("font-size: 14px;");
     connect(copy_btn, &QPushButton::clicked, this, &MainWindow::onStdCopy);
@@ -301,7 +312,7 @@ void MainWindow::setupHpMd(){
     layout->setContentsMargins(10, 10, 10, 10);
 
     // 介绍文字 - 固定高度
-    QLabel* intro = new QLabel("支持超大整数精确运算、部分位运算，但不支持小数");
+    QLabel* intro = new QLabel(tr("支持超大整数精确运算、部分位运算，但不支持小数"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
     intro->setFixedHeight(25);
@@ -310,7 +321,7 @@ void MainWindow::setupHpMd(){
 
     // 输入框
     hp_input = new QLineEdit();
-    hp_input->setPlaceholderText("输入表达式，例如: 12345678901234567890 + 98765432109876543210");
+    hp_input->setPlaceholderText(tr("输入表达式，例如: 12345678901234567890 + 98765432109876543210"));
     hp_input->setStyleSheet("font-size: 18px; padding: 8px;");
     hp_input->setReadOnly(true);
     layout->addWidget(hp_input);
@@ -319,12 +330,12 @@ void MainWindow::setupHpMd(){
     QHBoxLayout* output_layout = new QHBoxLayout();
     hp_output = new QTextEdit();
     hp_output->setReadOnly(true);
-    hp_output->setPlaceholderText("计算结果会显示在这里");
+    hp_output->setPlaceholderText(tr("计算结果会显示在这里"));
     hp_output->setStyleSheet("font-size: 16px; background-color: #f5f5f5;");
     hp_output->setMaximumHeight(100);
     output_layout->addWidget(hp_output);
 
-    QPushButton* copy_btn = new QPushButton("复制");
+    QPushButton* copy_btn = new QPushButton(tr("复制"));
     copy_btn->setFixedSize(60, 100);
     copy_btn->setStyleSheet("font-size: 14px;");
     connect(copy_btn, &QPushButton::clicked, this, &MainWindow::onHpCopy);
@@ -406,27 +417,27 @@ void MainWindow::setupNtMd(){
     layout->setContentsMargins(0, 0, 0, 0);
 
     // 介绍文字 - 固定高度
-    QLabel* intro = new QLabel("一些简单数论功能，要求输入全部是正整数");
+    QLabel* intro = new QLabel(tr("一些简单数论功能，要求输入全部是正整数"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
     intro->setFixedHeight(25);
     layout->addWidget(intro);
 
     // ========== 1. 根号化简 ==========
-    QGroupBox* sqrt_group = new QGroupBox("根号化简");
+    QGroupBox* sqrt_group = new QGroupBox(tr("根号化简"));
     QHBoxLayout* sqrt_layout = new QHBoxLayout(sqrt_group);
 
     QLabel* sqrtSymbol = new QLabel("√");
     sqrtSymbol->setStyleSheet("font-size: 18px;");
     nt_sqrt_num = new QLineEdit();
-    nt_sqrt_num->setPlaceholderText("根号内数字");
+    nt_sqrt_num->setPlaceholderText(tr("根号内数字"));
     nt_sqrt_num->setFixedWidth(150);
     nt_sqrt_num->setFixedHeight(25);
 
     sqrt_layout->addWidget(sqrtSymbol);
     sqrt_layout->addWidget(nt_sqrt_num);
     sqrt_layout->addStretch();
-    QPushButton* sqrt_calc_btn = new QPushButton("计算");
+    QPushButton* sqrt_calc_btn = new QPushButton(tr("计算"));
     sqrt_calc_btn->setFixedWidth(80);
     sqrt_calc_btn->setFixedHeight(25);
     connect(sqrt_calc_btn, &QPushButton::clicked, this, &MainWindow::onNtCalcSqrt);
@@ -435,12 +446,12 @@ void MainWindow::setupNtMd(){
     QHBoxLayout* sqrt_res_layout = new QHBoxLayout();
     nt_sqrt_res = new QTextEdit();
     nt_sqrt_res->setReadOnly(true);
-    nt_sqrt_res->setPlaceholderText("化简结果");
+    nt_sqrt_res->setPlaceholderText(tr("化简结果"));
     nt_sqrt_res->setMaximumHeight(60);
     nt_sqrt_res->setStyleSheet("background-color: #f5f5f5;");
     sqrt_res_layout->addWidget(nt_sqrt_res);
 
-    QPushButton* sqrt_copy_btn = new QPushButton("复制");
+    QPushButton* sqrt_copy_btn = new QPushButton(tr("复制"));
     sqrt_copy_btn->setFixedSize(50, 50);
     connect(sqrt_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopySqrt);
     sqrt_res_layout->addWidget(sqrt_copy_btn);
@@ -449,14 +460,14 @@ void MainWindow::setupNtMd(){
     layout->addLayout(sqrt_res_layout);
 
     // ========== 2. 分解质因数 ==========
-    QGroupBox* factor_group = new QGroupBox("分解质因数");
+    QGroupBox* factor_group = new QGroupBox(tr("分解质因数"));
     QHBoxLayout* factor_input_layout = new QHBoxLayout();
     nt_factor_input = new QLineEdit();
-    nt_factor_input->setPlaceholderText("请输入一个数");
+    nt_factor_input->setPlaceholderText(tr("请输入一个数"));
     nt_factor_input->setStyleSheet("font-size: 14px;");
     nt_factor_input->setFixedHeight(25);
     factor_input_layout->addWidget(nt_factor_input);
-    QPushButton* factor_calc_btn = new QPushButton("计算");
+    QPushButton* factor_calc_btn = new QPushButton(tr("计算"));
     factor_calc_btn->setFixedWidth(80);
     factor_calc_btn->setFixedHeight(25);
     connect(factor_calc_btn, &QPushButton::clicked, this, &MainWindow::onNtCalcFactor);
@@ -466,12 +477,12 @@ void MainWindow::setupNtMd(){
     QHBoxLayout* factor_res_layout = new QHBoxLayout();
     nt_factor_res = new QTextEdit();
     nt_factor_res->setReadOnly(true);
-    nt_factor_res->setPlaceholderText("分解结果");
+    nt_factor_res->setPlaceholderText(tr("分解结果"));
     nt_factor_res->setMaximumHeight(60);
     nt_factor_res->setStyleSheet("background-color: #f5f5f5;");
     factor_res_layout->addWidget(nt_factor_res);
 
-    QPushButton* factor_copy_btn = new QPushButton("复制");
+    QPushButton* factor_copy_btn = new QPushButton(tr("复制"));
     factor_copy_btn->setFixedSize(50, 50);
     connect(factor_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyFactor);
     factor_res_layout->addWidget(factor_copy_btn);
@@ -480,18 +491,18 @@ void MainWindow::setupNtMd(){
     layout->addLayout(factor_res_layout);
 
     // ========== 3. 最大公因数 ==========
-    QGroupBox* gcd_group = new QGroupBox("最大公因数");
+    QGroupBox* gcd_group = new QGroupBox(tr("最大公因数"));
     QHBoxLayout* gcd_input_layout = new QHBoxLayout();
     nt_gcd1 = new QLineEdit();
-    nt_gcd1->setPlaceholderText("数A");
+    nt_gcd1->setPlaceholderText(tr("数A"));
     nt_gcd1->setFixedWidth(120);
     nt_gcd1->setFixedHeight(25);
     QLabel* comma1 = new QLabel(",");
     nt_gcd2 = new QLineEdit();
-    nt_gcd2->setPlaceholderText("数B");
+    nt_gcd2->setPlaceholderText(tr("数B"));
     nt_gcd2->setFixedWidth(120);
     nt_gcd2->setFixedHeight(25);
-    QPushButton* gcd_calc_btn = new QPushButton("计算");
+    QPushButton* gcd_calc_btn = new QPushButton(tr("计算"));
     gcd_calc_btn->setFixedWidth(80);
     gcd_calc_btn->setFixedHeight(25);
     connect(gcd_calc_btn, &QPushButton::clicked, this, &MainWindow::onNtCalcGcd);
@@ -505,12 +516,12 @@ void MainWindow::setupNtMd(){
     QHBoxLayout* gcd_res_layout = new QHBoxLayout();
     nt_gcd_res = new QTextEdit();
     nt_gcd_res->setReadOnly(true);
-    nt_gcd_res->setPlaceholderText("最大公因数");
+    nt_gcd_res->setPlaceholderText(tr("最大公因数"));
     nt_gcd_res->setMaximumHeight(60);
     nt_gcd_res->setStyleSheet("background-color: #f5f5f5;");
     gcd_res_layout->addWidget(nt_gcd_res);
 
-    QPushButton* gcd_copy_btn = new QPushButton("复制");
+    QPushButton* gcd_copy_btn = new QPushButton(tr("复制"));
     gcd_copy_btn->setFixedSize(50, 50);
     connect(gcd_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyGcd);
     gcd_res_layout->addWidget(gcd_copy_btn);
@@ -519,18 +530,18 @@ void MainWindow::setupNtMd(){
     layout->addLayout(gcd_res_layout);
 
     // ========== 4. 最小公倍数 ==========
-    QGroupBox* lcm_group = new QGroupBox("最小公倍数");
+    QGroupBox* lcm_group = new QGroupBox(tr("最小公倍数"));
     QHBoxLayout* lcm_input_layout = new QHBoxLayout();
     nt_lcm1 = new QLineEdit();
-    nt_lcm1->setPlaceholderText("数A");
+    nt_lcm1->setPlaceholderText(tr("数A"));
     nt_lcm1->setFixedWidth(120);
     nt_lcm1->setFixedHeight(25);
     QLabel* comma2 = new QLabel(",");
     nt_lcm2 = new QLineEdit();
-    nt_lcm2->setPlaceholderText("数B");
+    nt_lcm2->setPlaceholderText(tr("数B"));
     nt_lcm2->setFixedWidth(120);
     nt_lcm2->setFixedHeight(25);
-    QPushButton* lcm_calc_btn = new QPushButton("计算");
+    QPushButton* lcm_calc_btn = new QPushButton(tr("计算"));
     lcm_calc_btn->setFixedWidth(80);
     lcm_calc_btn->setFixedHeight(25);
     connect(lcm_calc_btn, &QPushButton::clicked, this, &MainWindow::onNtCalcLcm);
@@ -544,12 +555,12 @@ void MainWindow::setupNtMd(){
     QHBoxLayout* lcm_res_layout = new QHBoxLayout();
     nt_lcm_res = new QTextEdit();
     nt_lcm_res->setReadOnly(true);
-    nt_lcm_res->setPlaceholderText("最小公倍数");
+    nt_lcm_res->setPlaceholderText(tr("最小公倍数"));
     nt_lcm_res->setMaximumHeight(60);
     nt_lcm_res->setStyleSheet("background-color: #f5f5f5;");
     lcm_res_layout->addWidget(nt_lcm_res);
 
-    QPushButton* lcm_copy_btn = new QPushButton("复制");
+    QPushButton* lcm_copy_btn = new QPushButton(tr("复制"));
     lcm_copy_btn->setFixedSize(50, 50);
     connect(lcm_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyLcm);
     lcm_res_layout->addWidget(lcm_copy_btn);
@@ -577,6 +588,23 @@ void MainWindow::onNtCopyLcm(){
     nt_lcm_res->copy();
 }
 
+void MainWindow::setupSet(){
+    set_panel = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout(set_panel);
+    layout->setSpacing(10);
+    layout->setContentsMargins(10, 10, 10, 10);
+
+    // 介绍文字
+    QLabel* intro = new QLabel(tr("这是设置"));
+    intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
+    intro->setAlignment(Qt::AlignCenter);
+    intro->setFixedHeight(25);  // 固定高度
+    intro->setWordWrap(true);   // 文字过长时自动换行
+    layout->addWidget(intro);
+
+    set_panel->setStyleSheet(pretty_style);
+}
+
 bool MainWindow::eventFilter(QObject* obj, QEvent* event){
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
@@ -598,59 +626,59 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
 
         // 功能按键
         switch(key){
-            case Qt::Key_C:
-                if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
-                    if (current_index == 0) {
-                        std_input->clear();
-                        std_output->clear();
-                    } else if (current_index == 1) {
-                        hp_input->clear();
-                        hp_output->clear();
-                    }
-                    return true;
-                }
-                break;
-            case Qt::Key_Delete: {
-                QString current;
+        case Qt::Key_C:
+            if (!(keyEvent->modifiers() & Qt::ControlModifier)) {
                 if (current_index == 0) {
-                    current = std_input->text();
+                    std_input->clear();
+                    std_output->clear();
                 } else if (current_index == 1) {
-                    current = hp_input->text();
-                }
-                if (!current.isEmpty()) current.chop(1);
-                if (current_index == 0) {
-                    std_input->setText(current);
-                } else if (current_index == 1) {
-                    hp_input->setText(current);
+                    hp_input->clear();
+                    hp_output->clear();
                 }
                 return true;
             }
-            case Qt::Key_Backspace: {
-                QString current;
-                if (current_index == 0) {
-                    current = std_input->text();
-                } else if (current_index == 1) {
-                    current = hp_input->text();
-                }
-                if (!current.isEmpty()) current.chop(1);
-                if (current_index == 0) {
-                    std_input->setText(current);
-                } else if (current_index == 1) {
-                    hp_input->setText(current);
-                }
-                return true;
+            break;
+        case Qt::Key_Delete: {
+            QString current;
+            if (current_index == 0) {
+                current = std_input->text();
+            } else if (current_index == 1) {
+                current = hp_input->text();
             }
-            case Qt::Key_Return:
-            case Qt::Key_Enter:
-            case Qt::Key_Equal:
-                // 触发计算
-                if (current_index == 0) {
-                    // 触发标准模式的计算
-                    StdMdCalc();
-                } else if (current_index == 1) {
-                    HpMdCalc();
-                }
-                return true;
+            if (!current.isEmpty()) current.chop(1);
+            if (current_index == 0) {
+                std_input->setText(current);
+            } else if (current_index == 1) {
+                hp_input->setText(current);
+            }
+            return true;
+        }
+        case Qt::Key_Backspace: {
+            QString current;
+            if (current_index == 0) {
+                current = std_input->text();
+            } else if (current_index == 1) {
+                current = hp_input->text();
+            }
+            if (!current.isEmpty()) current.chop(1);
+            if (current_index == 0) {
+                std_input->setText(current);
+            } else if (current_index == 1) {
+                hp_input->setText(current);
+            }
+            return true;
+        }
+        case Qt::Key_Return:
+        case Qt::Key_Enter:
+        case Qt::Key_Equal:
+            // 触发计算
+            if (current_index == 0) {
+                // 触发标准模式的计算
+                StdMdCalc();
+            } else if (current_index == 1) {
+                HpMdCalc();
+            }
+            return true;
         }
 
         // 运算符（注意：需要根据当前模式是否支持）
@@ -708,7 +736,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
 }
 
 void MainWindow::StdMdCalc(){
-    std_output->setText("正在计算中...");
+    std_output->setText(tr("正在计算中..."));
     std_output->repaint();
     QString expr = std_input->text();
     double res = 0;
@@ -726,7 +754,7 @@ void MainWindow::StdMdCalc(){
     }
 }
 void MainWindow::HpMdCalc(){
-    hp_output->setText("正在计算中...");
+    hp_output->setText(tr("正在计算中..."));
     hp_output->repaint();
     QString expr = hp_input->text();
     HP res = 0;
@@ -751,11 +779,11 @@ void MainWindow::HpMdCalc(){
 }
 void MainWindow::onNtCalcSqrt(){
     QString num = nt_sqrt_num->text();
-    nt_sqrt_res->setText("正在计算中...");
+    nt_sqrt_res->setText(tr("正在计算中..."));
     nt_sqrt_res->repaint();
 
     if(num.isEmpty()){
-        nt_sqrt_res->setText("请输入一个数");
+        nt_sqrt_res->setText(tr("请输入一个数"));
         nt_sqrt_num->clear();
         nt_sqrt_num->setPlaceholderText(num);
         return;
@@ -775,11 +803,11 @@ void MainWindow::onNtCalcSqrt(){
 }
 void MainWindow::onNtCalcFactor(){
     QString num = nt_factor_input->text();
-    nt_factor_res->setText("正在计算中...");
+    nt_factor_res->setText(tr("正在计算中..."));
     nt_factor_res->repaint();
 
     if(num.isEmpty()){
-        nt_factor_res->setText("请输入一个数");
+        nt_factor_res->setText(tr("请输入一个数"));
         nt_factor_input->clear();
         nt_factor_input->setPlaceholderText(num);
         return;
@@ -801,10 +829,10 @@ void MainWindow::onNtCalcGcd()
 {
     QString a = nt_gcd1->text();
     QString b = nt_gcd2->text();
-    nt_gcd_res->setText("正在计算中...");
+    nt_gcd_res->setText(tr("正在计算中..."));
     nt_gcd_res->repaint();
     if (a.isEmpty() || b.isEmpty()) {
-        nt_gcd_res->setText("请输入两个数");
+        nt_gcd_res->setText(tr("请输入两个数"));
         nt_gcd1->clear(); nt_gcd1->setPlaceholderText(a);
         nt_gcd2->clear(); nt_gcd2->setPlaceholderText(b);
         return;
@@ -828,11 +856,11 @@ void MainWindow::onNtCalcLcm()
 {
     QString a = nt_lcm1->text();
     QString b = nt_lcm2->text();
-    nt_lcm_res->setText("正在计算中...");
+    nt_lcm_res->setText(tr("正在计算中..."));
     nt_lcm_res->repaint();
 
     if (a.isEmpty() || b.isEmpty()) {
-        nt_lcm_res->setText("请输入两个数");
+        nt_lcm_res->setText(tr("请输入两个数"));
         nt_lcm1->clear(); nt_lcm1->setPlaceholderText(a);
         nt_lcm2->clear(); nt_lcm2->setPlaceholderText(b);
         return;
@@ -858,21 +886,21 @@ void MainWindow::StdErrShow(Err err_info){
 
     // 根据错误码获取错误描述
     switch(err_info.err_code){
-    case DIV_BY_ZERO:      err_msg = "除零错误"; break;
-    case FLOAT_MOD:        err_msg = "标准模式不支持取模运算(%)"; break;
-    case INPUT_ERR:        err_msg = "输入格式错误"; break;
-    case MULTIPLE_DOT:     err_msg = "数字包含多个小数点"; break;
-    case REDUNDANT_LPAR:   err_msg = "括号不匹配：缺少右括号"; break;
-    case REDUNDANT_RPAR:   err_msg = "括号不匹配：缺少左括号"; break;
-    case UNKNOWN_CHAR:     err_msg = "包含非法字符"; break;
-    case EXPR_ERR:         err_msg = "表达式无效"; break;
-    case NEGA_POWER:       err_msg = "不支持负次幂"; break;
-    case ZERO_POW_ZERO:    err_msg = "0的0次幂无意义"; break;
-    case CALC_ERR:         err_msg = "计算错误"; break;
-    default:               err_msg = "未知错误"; break;
+    case DIV_BY_ZERO:      err_msg = tr("除零错误"); break;
+    case FLOAT_MOD:        err_msg = tr("标准模式不支持取模运算(%)"); break;
+    case INPUT_ERR:        err_msg = tr("输入格式错误"); break;
+    case MULTIPLE_DOT:     err_msg = tr("数字包含多个小数点"); break;
+    case REDUNDANT_LPAR:   err_msg = tr("括号不匹配：缺少右括号"); break;
+    case REDUNDANT_RPAR:   err_msg = tr("括号不匹配：缺少左括号"); break;
+    case UNKNOWN_CHAR:     err_msg = tr("包含非法字符"); break;
+    case EXPR_ERR:         err_msg = tr("表达式无效"); break;
+    case NEGA_POWER:       err_msg = tr("不支持负次幂"); break;
+    case ZERO_POW_ZERO:    err_msg = tr("0的0次幂无意义"); break;
+    case CALC_ERR:         err_msg = tr("计算错误"); break;
+    default:               err_msg = tr("未知错误"); break;
     }
 
-    std_output->setText(QString("错误：%1").arg(err_msg));
+    std_output->setText(QString("%1").arg(err_msg));
 }
 void MainWindow::HpErrShow(Err err_info){
     QString expr = hp_input->text();
@@ -880,56 +908,56 @@ void MainWindow::HpErrShow(Err err_info){
 
     // 根据错误码获取错误描述
     switch(err_info.err_code){
-    case DIV_BY_ZERO:      err_msg = "除零错误"; break;
-    case MOD_BY_ZERO:      err_msg = "模零错误"; break;
-    case INPUT_ERR:        err_msg = "输入格式错误"; break;
-    case REDUNDANT_LPAR:   err_msg = "括号不匹配：缺少右括号"; break;
-    case REDUNDANT_RPAR:   err_msg = "括号不匹配：缺少左括号"; break;
-    case UNKNOWN_CHAR:     err_msg = "包含非法字符"; break;
-    case EXPR_ERR:         err_msg = "表达式无效"; break;
-    case NEGA_POWER:       err_msg = "不支持负次幂"; break;
-    case ZERO_POW_ZERO:    err_msg = "0的0次幂无意义"; break;
-    case LARGE_NUM:        err_msg = "幂运算数据过大"; break;
-    case CALC_ERR:         err_msg = "计算错误"; break;
-    default:               err_msg = "未知错误"; break;
+    case DIV_BY_ZERO:      err_msg = tr("除零错误"); break;
+    case MOD_BY_ZERO:      err_msg = tr("模零错误"); break;
+    case INPUT_ERR:        err_msg = tr("输入格式错误"); break;
+    case REDUNDANT_LPAR:   err_msg = tr("括号不匹配：缺少右括号"); break;
+    case REDUNDANT_RPAR:   err_msg = tr("括号不匹配：缺少左括号"); break;
+    case UNKNOWN_CHAR:     err_msg = tr("包含非法字符"); break;
+    case EXPR_ERR:         err_msg = tr("表达式无效"); break;
+    case NEGA_POWER:       err_msg = tr("不支持负次幂"); break;
+    case ZERO_POW_ZERO:    err_msg = tr("0的0次幂无意义"); break;
+    case LARGE_NUM:        err_msg = tr("幂运算数据过大"); break;
+    case CALC_ERR:         err_msg = tr("计算错误"); break;
+    default:               err_msg = tr("未知错误"); break;
     }
 
-    hp_output->setText(QString("错误：%1").arg(err_msg));
+    hp_output->setText(QString("%1").arg(err_msg));
 }
 
 void MainWindow::NtSqrtErrShow(Err err_info){
     QString err_msg;
     switch(err_info.err_code){
-    case NOT_POSI_INT: err_msg = "输入不是正整数"; break;
-    case LARGE_NUM:    err_msg = "数据过大"; break;
-    default:           err_msg = "未知错误"; break;
+    case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
+    case LARGE_NUM:    err_msg = tr("数据过大"); break;
+    default:           err_msg = tr("未知错误"); break;
     }
-    nt_sqrt_res->setText(QString("错误: %1").arg(err_msg));
+    nt_sqrt_res->setText(QString("%1").arg(err_msg));
 }
 void MainWindow::NtFactorErrShow(Err err_info){
     QString err_msg;
     switch(err_info.err_code){
-    case NOT_POSI_INT: err_msg = "输入不是正整数"; break;
-    case LARGE_NUM:    err_msg = "数据过大"; break;
-    default:           err_msg = "未知错误"; break;
+    case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
+    case LARGE_NUM:    err_msg = tr("数据过大"); break;
+    default:           err_msg = tr("未知错误"); break;
     }
-    nt_factor_res->setText(QString("错误: %1").arg(err_msg));
+    nt_factor_res->setText(QString("%1").arg(err_msg));
 }
 void MainWindow::NtGcdErrShow(Err err_info){
     QString err_msg;
     switch(err_info.err_code){
-    case NOT_POSI_INT: err_msg = "输入不是正整数"; break;
-    case LARGE_NUM:    err_msg = "数据过大"; break;
-    default:           err_msg = "未知错误"; break;
+    case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
+    case LARGE_NUM:    err_msg = tr("数据过大"); break;
+    default:           err_msg = tr("未知错误"); break;
     }
-    nt_gcd_res->setText(QString("错误: %1").arg(err_msg));
+    nt_gcd_res->setText(QString("%1").arg(err_msg));
 }
 void MainWindow::NtLcmErrShow(Err err_info){
     QString err_msg;
     switch(err_info.err_code){
-    case NOT_POSI_INT: err_msg = "输入不是正整数"; break;
-    case LARGE_NUM:    err_msg = "数据过大"; break;
-    default:           err_msg = "未知错误"; break;
+    case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
+    case LARGE_NUM:    err_msg = tr("数据过大"); break;
+    default:           err_msg = tr("未知错误"); break;
     }
-    nt_lcm_res->setText(QString("错误: %1").arg(err_msg));
+    nt_lcm_res->setText(QString("%1").arg(err_msg));
 }
