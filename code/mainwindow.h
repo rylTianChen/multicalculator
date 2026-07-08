@@ -16,6 +16,12 @@
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 #include <QKeyEvent>
+#include <QTranslator>
+#include <QSettings>
+#include <QComboBox>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QTimer>
 
 #include"back\tools\err.h"
 
@@ -52,7 +58,9 @@ private slots:
     void onNtCalcLcm();
 
     // 设置槽函数
-    // TODO
+    void onLanguageChanged(int index);
+    void switchLanguage(const QString &langCode);
+    void retranslateUi();
 
 private:
     void setupUI(); // 初始化界面
@@ -73,6 +81,8 @@ private:
     void NtFactorErrShow(Err err_info);
     void NtGcdErrShow(Err err_info);
     void NtLcmErrShow(Err err_info);
+
+    void rebuildAllPanels();
 
     QWidget* central_widget; // 中心窗口部件
     QVBoxLayout* main_layout; // 主布局,垂直
@@ -112,10 +122,18 @@ private:
     QTextEdit* nt_lcm_res;
 
     // 设置控件
-    // TODO
+    QComboBox *lang_combo;
+    QTranslator m_translator;
+    QLabel *set_title;
+    QLabel *set_intro;
+    QGroupBox *lang_group;
+    QLabel *lang_label;
 
 protected:
     bool eventFilter(QObject* obj, QEvent* event);
 };
+
+#define ORGANIZATION_NAME "TianChen"
+#define PROGRAM_NAME "multicalculator"
 
 #endif // MAINWINDOW_H

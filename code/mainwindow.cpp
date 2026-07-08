@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include <QFont>
+#include <QFile>
 #include <QTimer>
 #include<string>
 #include"back\calc_func.h"
@@ -51,7 +52,7 @@ QString pretty_style =
     "   background-color: #fafafa;"
     "}"
 
-    // 新增：QGroupBox 样式
+    // QGroupBox 样式
     "QGroupBox {"
     "   border: 1px solid #d0d0d0;"
     "   border-radius: 6px;"
@@ -63,6 +64,41 @@ QString pretty_style =
     "   subcontrol-origin: margin;"
     "   left: 10px;"
     "   padding: 0 5px 0 5px;"
+    "}"
+
+    // ========== 新增：QComboBox 样式 ==========
+    "QComboBox {"
+    "   background-color: #f0f0f0;"
+    "   border: 1px solid #d0d0d0;"
+    "   border-radius: 6px;"
+    "   padding: 6px 10px;"
+    "   font-size: 14px;"
+    "   min-width: 120px;"
+    "}"
+    "QComboBox:hover {"
+    "   border-color: #f39c12;"
+    "}"
+    "QComboBox:on {"
+    "   border-color: #f39c12;"
+    "}"
+    "QComboBox::drop-down {"
+    "   border: none;"
+    "   padding-right: 10px;"
+    "}"
+    "QComboBox::down-arrow {"
+    "   image: none;"
+    "   border-left: 4px solid transparent;"
+    "   border-right: 4px solid transparent;"
+    "   border-top: 6px solid #888;"
+    "   margin-right: 5px;"
+    "}"
+    "QComboBox QAbstractItemView {"
+    "   background-color: white;"
+    "   border: 1px solid #d0d0d0;"
+    "   border-radius: 6px;"
+    "   padding: 4px;"
+    "   selection-background-color: #f39c12;"
+    "   selection-color: white;"
     "}";
 
 constexpr int DIRECT_SHOW_LENGTH_LIMIT = 100;
@@ -212,7 +248,7 @@ void MainWindow::setupStdMd(){
     QLabel* intro = new QLabel(tr("支持小数，运算范围：-2e9 ~ +2e9，适合日常使用"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
-    intro->setFixedHeight(25);  // 固定高度
+    intro->setFixedHeight(45);  // 固定高度
     intro->setWordWrap(true);   // 文字过长时自动换行
     layout->addWidget(intro);
 
@@ -315,7 +351,7 @@ void MainWindow::setupHpMd(){
     QLabel* intro = new QLabel(tr("支持超大整数精确运算、部分位运算，但不支持小数"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
-    intro->setFixedHeight(25);
+    intro->setFixedHeight(45);
     intro->setWordWrap(true);
     layout->addWidget(intro);
 
@@ -420,7 +456,8 @@ void MainWindow::setupNtMd(){
     QLabel* intro = new QLabel(tr("一些简单数论功能，要求输入全部是正整数"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
-    intro->setFixedHeight(25);
+    intro->setFixedHeight(45);
+    intro->setWordWrap(true);
     layout->addWidget(intro);
 
     // ========== 1. 根号化简 ==========
@@ -588,21 +625,89 @@ void MainWindow::onNtCopyLcm(){
     nt_lcm_res->copy();
 }
 
-void MainWindow::setupSet(){
+void MainWindow::setupSet()
+{
+    qDebug() << "========================================";
+    qDebug() << "🔧 setupSet() called - Building Settings Panel";
+    qDebug() << "========================================";
+
+    // ===== 1. 创建设置面板 =====
     set_panel = new QWidget();
     QVBoxLayout* layout = new QVBoxLayout(set_panel);
     layout->setSpacing(10);
     layout->setContentsMargins(10, 10, 10, 10);
 
-    // 介绍文字
-    QLabel* intro = new QLabel(tr("这是设置"));
-    intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
-    intro->setAlignment(Qt::AlignCenter);
-    intro->setFixedHeight(25);  // 固定高度
-    intro->setWordWrap(true);   // 文字过长时自动换行
-    layout->addWidget(intro);
+    // ===== 2. 标题 =====
+    set_intro = new QLabel(tr("设置"));
+    set_intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
+    set_intro->setAlignment(Qt::AlignCenter);
+    set_intro->setFixedHeight(25);
+    set_intro->setWordWrap(true);
+    layout->addWidget(set_intro);
+    qDebug() << "  ✅ Title created:" << set_intro->text();
+
+    // ===== 3. 语言设置 GroupBox =====
+    lang_group = new QGroupBox(tr("语言 / Language"));
+    QHBoxLayout *lang_layout = new QHBoxLayout(lang_group);
+    lang_layout->setSpacing(15);
+    qDebug() << "  ✅ Language group created";
+
+    // ===== 4. 语言标签 =====
+    lang_label = new QLabel(tr("语言："));
+    lang_layout->addWidget(lang_label);
+    qDebug() << "  ✅ Language label created:" << lang_label->text();
+
+    // ===== 5. 语言下拉框 =====
+    lang_combo = new QComboBox();
+    lang_combo->addItem("简体中文", "zh_CN");
+    lang_combo->addItem("English", "en");
+    lang_layout->addWidget(lang_combo);
+    qDebug() << "  ✅ ComboBox created with items: zh_CN, en";
+
+    // ===== 6. 读取 INI 文件 =====
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString iniPath = appPath + "/settings.ini";
+    qDebug() << "  📁 INI file path:" << iniPath;
+    qDebug() << "  📁 INI file exists:" << QFile::exists(iniPath);
+
+    QSettings settings(iniPath, QSettings::IniFormat);
+    settings.sync();
+
+    QString savedLang = settings.value("Language", "zh_CN").toString();
+    qDebug() << "  📖 Saved language from INI:" << savedLang;
+
+    // ===== 7. 设置 ComboBox 到正确位置（阻断信号） =====
+    lang_combo->blockSignals(true);
+
+    int targetIndex = lang_combo->findData(savedLang);
+    if (targetIndex >= 0) {
+        lang_combo->setCurrentIndex(targetIndex);
+        qDebug() << "  ✅ Combo set to index:" << targetIndex << "(" << savedLang << ")";
+    } else {
+        lang_combo->setCurrentIndex(0);
+        qDebug() << "  ⚠️ Saved language not found, defaulting to index 0 (zh_CN)";
+    }
+
+    lang_combo->blockSignals(false);
+
+    // ===== 8. 连接信号 =====
+    connect(lang_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &MainWindow::onLanguageChanged);
+    qDebug() << "  ✅ Combo signal connected";
+
+    // ===== 9. 完成布局 =====
+    lang_layout->addStretch();
+    layout->addWidget(lang_group);
+
+    layout->addStretch();
 
     set_panel->setStyleSheet(pretty_style);
+    qDebug() << "  ✅ Settings panel style applied";
+
+    qDebug() << "========================================";
+    qDebug() << "✅ setupSet() completed!";
+    qDebug() << "   Combo shows:" << lang_combo->currentData().toString();
+    qDebug() << "========================================";
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event){
@@ -960,4 +1065,110 @@ void MainWindow::NtLcmErrShow(Err err_info){
     default:           err_msg = tr("未知错误"); break;
     }
     nt_lcm_res->setText(QString("%1").arg(err_msg));
+}
+
+void MainWindow::onLanguageChanged(int index){
+    QString langCode = lang_combo->itemData(index).toString();
+    switchLanguage(langCode);
+}
+void MainWindow::switchLanguage(const QString &langCode)
+{
+    qDebug() << "🔍 Switching to language:" << langCode;
+
+    qApp->removeTranslator(&m_translator);
+
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString qmFile = appPath + "/calculator_" + langCode + ".qm";
+    qDebug() << "🔍 Trying to load:" << qmFile;
+
+    if (m_translator.load(qmFile)) {
+        qApp->installTranslator(&m_translator);
+        qDebug() << "✅ Translation loaded from:" << qmFile;
+
+        // ===== 使用 INI 文件保存 =====
+        QString iniPath = appPath + "/settings.ini";
+        QSettings settings(iniPath, QSettings::IniFormat);
+        settings.setValue("Language", langCode);
+        settings.sync();  // 立即写入文件
+        qDebug() << "✅ Settings saved to:" << iniPath;
+
+        // 延迟重建 UI
+        QTimer::singleShot(10, this, &MainWindow::retranslateUi);
+    } else {
+        qDebug() << "❌ Failed to load translation!";
+    }
+}
+void MainWindow::retranslateUi()
+{
+    qDebug() << "🔍 retranslateUi() called!";
+    qDebug() << "🔍 Testing translation: '标准模式' ->" << tr("标准模式");
+
+    // ===== 重建所有面板 =====
+    rebuildAllPanels();
+
+    // ===== 更新窗口标题 =====
+    setWindowTitle(tr("高精度多功能计算器"));
+
+    // ===== 更新顶部模式按钮 =====
+    if (std_md_btn) std_md_btn->setText(tr("标准模式"));
+    if (hp_md_btn) hp_md_btn->setText(tr("高精度模式"));
+    if (nt_md_btn) nt_md_btn->setText(tr("数论工具"));
+
+    qDebug() << "✅ retranslateUi() completed!";
+}
+void MainWindow::rebuildAllPanels()
+{
+    if (!stacked_widget) {
+        qDebug() << "❌ rebuildAllPanels: stacked_widget is null!";
+        return;
+    }
+
+    // 保存当前激活的面板索引
+    int currentIndex = stacked_widget->currentIndex();
+    qDebug() << "🔍 rebuildAllPanels: currentIndex =" << currentIndex;
+
+    // ===== 清空堆叠窗口中的所有面板 =====
+    while (stacked_widget->count() > 0) {
+        QWidget* widget = stacked_widget->widget(0);
+        stacked_widget->removeWidget(widget);
+        widget->deleteLater();
+    }
+
+    // 清空按钮列表
+    std_btns.clear();
+    hp_btns.clear();
+
+    // 将所有面板指针置空
+    std_md_panel = nullptr;
+    hp_md_panel = nullptr;
+    nt_md_panel = nullptr;
+    set_panel = nullptr;
+
+    // ===== 重新创建所有面板 =====
+    setupStdMd();
+    setupHpMd();
+    setupNtMd();
+    setupSet();
+
+    // ===== 重新添加到堆叠窗口 =====
+    stacked_widget->addWidget(std_md_panel);
+    stacked_widget->addWidget(hp_md_panel);
+    stacked_widget->addWidget(nt_md_panel);
+    stacked_widget->addWidget(set_panel);
+
+    // ===== 恢复之前激活的面板 =====
+    if (currentIndex < 0 || currentIndex >= stacked_widget->count()) {
+        currentIndex = 0;
+    }
+    stacked_widget->setCurrentIndex(currentIndex);
+
+    switch (currentIndex) {
+    case 0: updateBtnStyle(std_md_btn); break;
+    case 1: updateBtnStyle(hp_md_btn); break;
+    case 2: updateBtnStyle(nt_md_btn); break;
+    case 3: updateBtnStyle(set_btn); break;
+    default: break;
+    }
+
+    qDebug() << "🔍 rebuildAllPanels: restored to index" << currentIndex;
 }

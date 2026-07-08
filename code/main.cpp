@@ -1,22 +1,32 @@
 #include <QApplication>
 #include <QTranslator>
-#include <QLocale>
+#include <QSettings>
+#include <QCoreApplication>
+#include <QDebug>
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // 加载翻译（强制使用简体中文）
+    // ===== 使用 INI 文件存储设置 =====
+    QString iniPath = QCoreApplication::applicationDirPath() + "/settings.ini";
+    QSettings settings(iniPath, QSettings::IniFormat);
+    settings.sync();
+
+    QString lang = settings.value("Language", "zh_CN").toString();
+    qDebug() << "🔍 Loading language:" << lang;
+    qDebug() << "🔍 Settings file:" << iniPath;
+
     QTranslator translator;
-    // 固定加载中文翻译文件
-    if (translator.load(":/translations/calculator_zh_CN.qm")) {
+    QString appPath = QCoreApplication::applicationDirPath();
+    QString qmFile = appPath + "/calculator_" + lang + ".qm";
+
+    if (translator.load(qmFile)) {
         a.installTranslator(&translator);
+        qDebug() << "✅ Translation loaded from:" << qmFile;
     } else {
-        // 如果嵌入式资源加载失败，尝试从文件系统加载（调试用）
-        if (translator.load("translations/calculator_zh_CN.qm")) {
-            a.installTranslator(&translator);
-        }
+        qDebug() << "❌ Failed to load translation!";
     }
 
     MainWindow w;
