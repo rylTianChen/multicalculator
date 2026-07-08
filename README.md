@@ -28,7 +28,20 @@ A powerful multi-mode calculator with high-precision integer arithmetic, standar
 
 ## 🖥️ Screenshots
 
-*[Add screenshots here]*
+### Standard Mode
+Basic decimal arithmetic for everyday calculations.
+
+![Standard Mode](screenshots/std_mode_shot.png)
+
+### High-Precision Mode
+Arbitrary-precision integer arithmetic with bitwise operations and automatic scientific notation for large results.
+
+![High-Precision Mode](screenshots/hp_mode_shot.png)
+
+### Number Theory Tools
+Simplify radicals, factor integers, and compute GCD/LCM.
+
+![Number Theory Mode](screenshots/nt_mode_shot.png)
 
 ---
 
