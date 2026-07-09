@@ -19,6 +19,7 @@ A powerful multi-mode calculator with high-precision integer arithmetic, standar
 - Arbitrary-precision integer arithmetic (up to 1e8 digits)
 - Supports `+ - * / ^ % & | !` (bitwise operations)
 - Automatic scientific notation for results over 100 digits
+- Automatically put the exact result over 100 digits to file on Desktop
 
 ### Number Theory Tools
 - **Radical Simplification**: Simplify square roots (e.g., `√72 → 6√2`)
