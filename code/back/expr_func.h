@@ -17,7 +17,7 @@ constexpr int OPTYPE = 2;
 constexpr int HEADTYPE = -1;//头指针,不存值
 constexpr int TAILTYPE = -2;//尾指针,不存值
 int ori_lv[130], MAX_ORI_LV = 4;
-constexpr int POW_LIMIT = 6;
+constexpr int POW_LIMIT = 7;
 
 template<typename T>
 struct Token{
