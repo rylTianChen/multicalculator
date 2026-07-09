@@ -2,8 +2,11 @@
 #include <QFont>
 #include <QFile>
 #include <QTimer>
+#include <QStandardPaths>
+#include <QTextStream>
 #include<string>
 #include"back\calc_func.h"
+#include"back/io_func.h"
 #include"back\tools\convert_func.h"
 #include"back\tools\err.h"
 #include"back\tools\hpcalc.h"
@@ -627,9 +630,9 @@ void MainWindow::onNtCopyLcm(){
 
 void MainWindow::setupSet()
 {
-    qDebug() << "========================================";
-    qDebug() << "🔧 setupSet() called - Building Settings Panel";
-    qDebug() << "========================================";
+    // qDebug() << "========================================";
+    // qDebug() << "🔧 setupSet() called - Building Settings Panel";
+    // qDebug() << "========================================";
 
     // ===== 1. 创建设置面板 =====
     set_panel = new QWidget();
@@ -644,37 +647,37 @@ void MainWindow::setupSet()
     set_intro->setFixedHeight(25);
     set_intro->setWordWrap(true);
     layout->addWidget(set_intro);
-    qDebug() << "  ✅ Title created:" << set_intro->text();
+    // qDebug() << "  ✅ Title created:" << set_intro->text();
 
     // ===== 3. 语言设置 GroupBox =====
     lang_group = new QGroupBox(tr("语言 / Language"));
     QHBoxLayout *lang_layout = new QHBoxLayout(lang_group);
     lang_layout->setSpacing(15);
-    qDebug() << "  ✅ Language group created";
+    // qDebug() << "  ✅ Language group created";
 
     // ===== 4. 语言标签 =====
     lang_label = new QLabel(tr("语言："));
     lang_layout->addWidget(lang_label);
-    qDebug() << "  ✅ Language label created:" << lang_label->text();
+    // qDebug() << "  ✅ Language label created:" << lang_label->text();
 
     // ===== 5. 语言下拉框 =====
     lang_combo = new QComboBox();
     lang_combo->addItem("简体中文", "zh_CN");
     lang_combo->addItem("English", "en");
     lang_layout->addWidget(lang_combo);
-    qDebug() << "  ✅ ComboBox created with items: zh_CN, en";
+    // qDebug() << "  ✅ ComboBox created with items: zh_CN, en";
 
     // ===== 6. 读取 INI 文件 =====
     QString appPath = QCoreApplication::applicationDirPath();
     QString iniPath = appPath + "/settings.ini";
-    qDebug() << "  📁 INI file path:" << iniPath;
-    qDebug() << "  📁 INI file exists:" << QFile::exists(iniPath);
+    // qDebug() << "  📁 INI file path:" << iniPath;
+    // qDebug() << "  📁 INI file exists:" << QFile::exists(iniPath);
 
     QSettings settings(iniPath, QSettings::IniFormat);
     settings.sync();
 
     QString savedLang = settings.value("Language", "zh_CN").toString();
-    qDebug() << "  📖 Saved language from INI:" << savedLang;
+    // qDebug() << "  📖 Saved language from INI:" << savedLang;
 
     // ===== 7. 设置 ComboBox 到正确位置（阻断信号） =====
     lang_combo->blockSignals(true);
@@ -682,10 +685,10 @@ void MainWindow::setupSet()
     int targetIndex = lang_combo->findData(savedLang);
     if (targetIndex >= 0) {
         lang_combo->setCurrentIndex(targetIndex);
-        qDebug() << "  ✅ Combo set to index:" << targetIndex << "(" << savedLang << ")";
+        // qDebug() << "  ✅ Combo set to index:" << targetIndex << "(" << savedLang << ")";
     } else {
         lang_combo->setCurrentIndex(0);
-        qDebug() << "  ⚠️ Saved language not found, defaulting to index 0 (zh_CN)";
+        // qDebug() << "  ⚠️ Saved language not found, defaulting to index 0 (zh_CN)";
     }
 
     lang_combo->blockSignals(false);
@@ -693,7 +696,7 @@ void MainWindow::setupSet()
     // ===== 8. 连接信号 =====
     connect(lang_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MainWindow::onLanguageChanged);
-    qDebug() << "  ✅ Combo signal connected";
+    // qDebug() << "  ✅ Combo signal connected";
 
     // ===== 9. 完成布局 =====
     lang_layout->addStretch();
@@ -702,12 +705,12 @@ void MainWindow::setupSet()
     layout->addStretch();
 
     set_panel->setStyleSheet(pretty_style);
-    qDebug() << "  ✅ Settings panel style applied";
+    // qDebug() << "  ✅ Settings panel style applied";
 
-    qDebug() << "========================================";
-    qDebug() << "✅ setupSet() completed!";
-    qDebug() << "   Combo shows:" << lang_combo->currentData().toString();
-    qDebug() << "========================================";
+    // qDebug() << "========================================";
+    // qDebug() << "✅ setupSet() completed!";
+    // qDebug() << "   Combo shows:" << lang_combo->currentData().toString();
+    // qDebug() << "========================================";
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event){
@@ -876,7 +879,8 @@ void MainWindow::HpMdCalc(){
         QString sci_res_str = "";
         if(res.size() > DIRECT_SHOW_LENGTH_LIMIT){
             sci_res_str = QString::fromStdString(numTOsci(res_std_str));
-            hp_output->setText(sci_res_str + '\n' + res_str);
+            saveResultToDesktop(res_str);
+            hp_output->setText(sci_res_str + '\n' + tr("精确结果已保存至桌面calculation_result.txt"));
         }else{
             hp_output->setText(res_str);
         }
@@ -1073,35 +1077,35 @@ void MainWindow::onLanguageChanged(int index){
 }
 void MainWindow::switchLanguage(const QString &langCode)
 {
-    qDebug() << "🔍 Switching to language:" << langCode;
+    // qDebug() << "🔍 Switching to language:" << langCode;
 
     qApp->removeTranslator(&m_translator);
 
     QString appPath = QCoreApplication::applicationDirPath();
     QString qmFile = appPath + "/calculator_" + langCode + ".qm";
-    qDebug() << "🔍 Trying to load:" << qmFile;
+    // qDebug() << "🔍 Trying to load:" << qmFile;
 
     if (m_translator.load(qmFile)) {
         qApp->installTranslator(&m_translator);
-        qDebug() << "✅ Translation loaded from:" << qmFile;
+        // qDebug() << "✅ Translation loaded from:" << qmFile;
 
         // ===== 使用 INI 文件保存 =====
         QString iniPath = appPath + "/settings.ini";
         QSettings settings(iniPath, QSettings::IniFormat);
         settings.setValue("Language", langCode);
         settings.sync();  // 立即写入文件
-        qDebug() << "✅ Settings saved to:" << iniPath;
+        // qDebug() << "✅ Settings saved to:" << iniPath;
 
         // 延迟重建 UI
         QTimer::singleShot(10, this, &MainWindow::retranslateUi);
     } else {
-        qDebug() << "❌ Failed to load translation!";
+        // qDebug() << "❌ Failed to load translation!";
     }
 }
 void MainWindow::retranslateUi()
 {
-    qDebug() << "🔍 retranslateUi() called!";
-    qDebug() << "🔍 Testing translation: '标准模式' ->" << tr("标准模式");
+    // qDebug() << "🔍 retranslateUi() called!";
+    // qDebug() << "🔍 Testing translation: '标准模式' ->" << tr("标准模式");
 
     // ===== 重建所有面板 =====
     rebuildAllPanels();
@@ -1114,18 +1118,18 @@ void MainWindow::retranslateUi()
     if (hp_md_btn) hp_md_btn->setText(tr("高精度模式"));
     if (nt_md_btn) nt_md_btn->setText(tr("数论工具"));
 
-    qDebug() << "✅ retranslateUi() completed!";
+    // qDebug() << "✅ retranslateUi() completed!";
 }
 void MainWindow::rebuildAllPanels()
 {
     if (!stacked_widget) {
-        qDebug() << "❌ rebuildAllPanels: stacked_widget is null!";
+        // qDebug() << "❌ rebuildAllPanels: stacked_widget is null!";
         return;
     }
 
     // 保存当前激活的面板索引
     int currentIndex = stacked_widget->currentIndex();
-    qDebug() << "🔍 rebuildAllPanels: currentIndex =" << currentIndex;
+    // qDebug() << "🔍 rebuildAllPanels: currentIndex =" << currentIndex;
 
     // ===== 清空堆叠窗口中的所有面板 =====
     while (stacked_widget->count() > 0) {
@@ -1161,7 +1165,6 @@ void MainWindow::rebuildAllPanels()
         currentIndex = 0;
     }
     stacked_widget->setCurrentIndex(currentIndex);
-
     switch (currentIndex) {
     case 0: updateBtnStyle(std_md_btn); break;
     case 1: updateBtnStyle(hp_md_btn); break;
@@ -1170,5 +1173,5 @@ void MainWindow::rebuildAllPanels()
     default: break;
     }
 
-    qDebug() << "🔍 rebuildAllPanels: restored to index" << currentIndex;
+    // qDebug() << "🔍 rebuildAllPanels: restored to index" << currentIndex;
 }

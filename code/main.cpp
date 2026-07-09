@@ -15,8 +15,8 @@ int main(int argc, char *argv[])
     settings.sync();
 
     QString lang = settings.value("Language", "zh_CN").toString();
-    qDebug() << "🔍 Loading language:" << lang;
-    qDebug() << "🔍 Settings file:" << iniPath;
+    // qDebug() << "🔍 Loading language:" << lang;
+    // qDebug() << "🔍 Settings file:" << iniPath;
 
     QTranslator translator;
     QString appPath = QCoreApplication::applicationDirPath();
@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
 
     if (translator.load(qmFile)) {
         a.installTranslator(&translator);
-        qDebug() << "✅ Translation loaded from:" << qmFile;
+        // qDebug() << "✅ Translation loaded from:" << qmFile;
     } else {
-        qDebug() << "❌ Failed to load translation!";
+        // qDebug() << "❌ Failed to load translation!";
     }
 
     MainWindow w;

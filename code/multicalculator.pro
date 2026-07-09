@@ -7,6 +7,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    back/io_func.h \
     mainwindow.h\
     back\calc_func.h\
     back\expr_func.h\
