@@ -2,14 +2,17 @@
 #define MATHCALC_CALC_H
 
 #include<string>
+#include<QString>
 typedef std::string str;
 #include"expr_func.h"
 #include"tools\init_func.h"
 #include"tools/hpcalc.h"
+#include"log.h"
 
 constexpr int NT_LEN_LIMIT = 20;
 
 double StdCalcFunc(str ori_input_str){
+    addLogLine(DEBUG, "Got into StdCalcFunc()");
     init_op_lv();
     //head、tail均不存值
     Token<double>* head = new Token<double>;
@@ -19,6 +22,7 @@ double StdCalcFunc(str ori_input_str){
     head->prev = head, head->next = tail;
     tail->prev = head, tail->next = tail;
 
+    addLogLine(DEBUG, "Expression: "+QString::fromStdString(ori_input_str));
     try{
         double_expr_read(head, ori_input_str);
     }catch(Err err_info){
@@ -26,6 +30,7 @@ double StdCalcFunc(str ori_input_str){
         throw err_info;
         return 0;
     }
+    addLogLine(DEBUG, "Token list: "+QString::fromStdString(tklistTOstr(head)));
 
     double res;
     try{
@@ -35,11 +40,14 @@ double StdCalcFunc(str ori_input_str){
         throw err_info;
         return 0;
     }
+    addLogLine(DEBUG, "Result: "+QString::fromStdString(doubleTOstr(res)));
     clear_tk(head);
+    addLogLine(DEBUG, "Exiting from StdCalcFunc()");
     return res;
 }
 
 HP HpCalcFunc(str ori_input_str){
+    addLogLine(DEBUG, "Got into HpCalcFunc()");
     init_op_lv();
     //head、tail均不存值
     Token<HP>* head = new Token<HP>;
@@ -49,6 +57,7 @@ HP HpCalcFunc(str ori_input_str){
     head->prev = head, head->next = tail;
     tail->prev = head, tail->next = tail;
 
+    addLogLine(DEBUG, "Expression: "+QString::fromStdString(ori_input_str));
     try{
         hp_expr_read(head, ori_input_str);
     }catch(Err err_info){
@@ -56,6 +65,7 @@ HP HpCalcFunc(str ori_input_str){
         throw err_info;
         return 0;
     }
+    addLogLine(DEBUG, "Token list: "+QString::fromStdString(tklistTOstr(head)));
 
     HP res;
     try{
@@ -65,11 +75,16 @@ HP HpCalcFunc(str ori_input_str){
         throw err_info;
         return 0;
     }
+    addLogLine(DEBUG, "Result: "+QString::fromStdString(str(res)));
     clear_tk(head);
+    addLogLine(DEBUG, "Exiting from HpCalcFunc()");
     return res;
 }
 
 str NtSqrtFunc(str ori_input_str){
+    addLogLine(DEBUG, "Got into NtSqrtFunc()");
+
+    addLogLine(DEBUG, "Number: "+QString::fromStdString(ori_input_str));
     HP ori_num(ori_input_str);
     if(ori_num.isEMPTY() || ori_num.sign()<=0){
         throw Err(NOT_POSI_INT, -1, -1);
@@ -92,9 +107,15 @@ str NtSqrtFunc(str ori_input_str){
     if(sqrt_num > 1){
         res += "√" + str(sqrt_num);
     }
+    addLogLine(DEBUG, "Result: "+QString::fromStdString(res));
+
+    addLogLine(DEBUG, "Exiting from NtSqrtFunc()");
     return res;
 }
 str NtFactorFunc(str ori_input_str){
+    addLogLine(DEBUG, "Got into NtFactorFunc()");
+
+    addLogLine(DEBUG, "Number: "+QString::fromStdString(ori_input_str));
     HP ori_num(ori_input_str);
     if(ori_num.isEMPTY() || ori_num.sign()<=0){
         throw Err(NOT_POSI_INT, -1, -1);
@@ -128,6 +149,9 @@ str NtFactorFunc(str ori_input_str){
         if (!is_first_factor) res += " * ";
         res += str(n);
     }
+    addLogLine(DEBUG, "Result: "+QString::fromStdString(res));
+
+    addLogLine(DEBUG, "Exiting from NtFactorFunc()");
     return res;
 }
 HP hp_gcd(HP a, HP b){
@@ -141,6 +165,10 @@ HP hp_gcd(HP a, HP b){
     // else return hp_gcd(b, a%b);
 }
 str NtGcdFunc(str ori_str1, str ori_str2){
+    addLogLine(DEBUG, "Got into NtGcdFunc()");
+
+    addLogLine(DEBUG, "Numbers: "
+                          +QString::fromStdString(ori_str1) + " " + QString::fromStdString(ori_str2));
     HP a(ori_str1), b(ori_str2);
     if(a.isEMPTY() || a.sign()<=0){
         throw Err(NOT_POSI_INT, -1, -1);
@@ -161,12 +189,18 @@ str NtGcdFunc(str ori_str1, str ori_str2){
 
     if(a==1 || b==1) return "1";
     HP gcd_num = hp_gcd(a, b);
+    addLogLine(DEBUG, "Result: "+QString::fromStdString(str(gcd_num)));
+    addLogLine(DEBUG, "Exiting from NtGcdFunc()");
     return str(gcd_num);
 }
 HP hp_lcm(HP a, HP b){
     return a*b/hp_gcd(a, b);
 }
 str NtLcmFunc(str ori_str1, str ori_str2){
+    addLogLine(DEBUG, "Got into NtLcmFunc()");
+
+    addLogLine(DEBUG, "Numbers: "
+                          +QString::fromStdString(ori_str1) + " " + QString::fromStdString(ori_str2));
     HP a(ori_str1), b(ori_str2);
     if(a.isEMPTY() || a.sign()<=0){
         throw Err(NOT_POSI_INT, -1, -1);
@@ -187,6 +221,9 @@ str NtLcmFunc(str ori_str1, str ori_str2){
 
     if(a==1 || b==1) return "1";
     HP lcm_num = hp_lcm(a, b);
+    addLogLine(DEBUG, "Result: "+QString::fromStdString(str(lcm_num)));
+
+    addLogLine(DEBUG, "Exiting from NtLcmFunc()");
     return str(lcm_num);
 }
 

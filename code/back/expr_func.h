@@ -10,6 +10,7 @@ typedef std::string str;
 typedef grnum::HP HP;
 #include"tools\numch_func.h"
 #include"tools\convert_func.h"
+#include"log.h"
 
 
 constexpr int NUMTYPE = 1;
@@ -84,27 +85,12 @@ void clear_tk(Token<T>* head){
     }
     delete head;
     delete tmp;
+    addLogLine(DEBUG, "All tokens cleared");
 }
 
-// void hp_print_tk(Token* head){
-//     Token* temp = head;
-//     while(temp->type != TAILTYPE){
-//         putchar('[');
-//         if(temp->type == NUMTYPE){
-//             printf(" ");
-//             grnum::putHP(temp->num);
-//             printf(" ");
-//         }
-//         if(temp->type == OPTYPE){
-//             printf(" %c(%d) ", temp->op, temp->op_lv);
-//         }
-//         temp = temp->next;
-//         putchar(']');
-//     }
-//     puts("");
-// }
-
 void double_expr_read(Token<double>* head, str ori_input_str){
+    addLogLine(DEBUG, "Got into double_expr_read()");
+
     char lst_ch = 0;
     int par_lv = 0;//括号等级
     int pos_cnt = 0; // 计数
@@ -215,8 +201,12 @@ void double_expr_read(Token<double>* head, str ori_input_str){
         throw Err(INPUT_ERR, pos_cnt, pos_cnt);
         return;
     }
+
+    addLogLine(DEBUG, "Exited from double_expr_read()");
 }
 void hp_expr_read(Token<HP>* head, str ori_input_str){
+    addLogLine(DEBUG, "Got into hp_expr_read()");
+
     char lst_ch = 0;
     int par_lv = 0;//括号等级
     int pos_cnt = 0; // 计数
@@ -318,6 +308,8 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
         throw Err(INPUT_ERR, pos_cnt, pos_cnt);
         return;
     }
+
+    addLogLine(DEBUG, "Exiting from hp_expr_read()");
 }
 
 template<typename T>
@@ -358,6 +350,7 @@ void math_check(T a, char op, T b){
 
 template<typename T>
 T calculate(Token<T>* head){
+    addLogLine(DEBUG, "Got into calculate()");
     Token<T>* tail=head;
     Token<T>* i;
     Token<T> *lop, *rop, *nop;
@@ -431,10 +424,37 @@ T calculate(Token<T>* head){
     }
     
     if(!(head->next->next == tail)){
-    	return EXPR_ERR;
+        throw Err(EXPR_ERR, -1, -1);
+        return 0;
 	}
     c = head->next->num;
+    addLogLine(DEBUG, "Exiting from calculate()");
     return c;
+}
+
+template<typename T>
+str tklistTOstr(Token<T> *head){
+    Token<T>* temp = head->next;
+    str res = "";
+    while(temp->type != TAILTYPE){
+        res += "[";
+        if(temp->type == NUMTYPE){
+            res += " ";
+            if constexpr (std::is_same_v<T, double>){
+                res += doubleTOstr(temp->num);
+            }else if constexpr(std::is_same_v<T, HP>){
+                res += str(temp->num);
+            }
+            res += " ";
+        }
+        if(temp->type == OPTYPE){
+            res += temp->op;
+            res += "(" + str(HP(temp->op_lv)) + ") ";
+        }
+        temp = temp->next;
+        res += "]";
+    }
+    return res;
 }
 
 #endif

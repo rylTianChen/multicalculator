@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QDebug>
+#include"log.h"
 
 void saveResultToDesktop(const QString &res_str)
 {
@@ -17,7 +18,11 @@ void saveResultToDesktop(const QString &res_str)
         file.write(res_str.toUtf8());
         file.write("\n");
         file.close();
+        addLogLine(INFO, "Wrote long result to text file");
+    } else {
+        addLogLine(ERROR, "Failed to write long result to text file");
     }
+
 }
 
 #endif // IO_FUNC_H
