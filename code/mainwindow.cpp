@@ -10,11 +10,15 @@
 #include"back\tools\convert_func.h"
 #include"back\tools\err.h"
 #include"back\tools\hpcalc.h"
+#include"back/log.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    initLog();
+    addLogLine(INFO, "Program started");
     setupUI();
+    addLogLine(INFO, "Set up UI successfully");
 }
 
 MainWindow::~MainWindow() {}
@@ -194,18 +198,22 @@ void MainWindow::fadeSwitch(int index){
 void MainWindow::switchTOstd(){
     fadeSwitch(0); // std面板索引为0
     updateBtnStyle(std_md_btn);
+    addLogLine(INFO, "Switch to standard mode");
 }
 void MainWindow::switchTOhp(){
     fadeSwitch(1); // hp面板索引为1
     updateBtnStyle(hp_md_btn);
+    addLogLine(INFO, "Switch to high-precision mode");
 }
 void MainWindow::switchTOnt(){
     fadeSwitch(2); // nt面板索引为2
     updateBtnStyle(nt_md_btn);
+    addLogLine(INFO, "Switch to number theory mode");
 }
 void MainWindow::switchTOset(){
     fadeSwitch(3); // 设置面板索引为3
     updateBtnStyle(set_btn);
+    addLogLine(INFO, "Switch to settings");
 }
 
 void MainWindow::updateBtnStyle(QPushButton* active_btn){
@@ -310,12 +318,16 @@ void MainWindow::setupStdMd(){
     }
 
     std_md_panel->setStyleSheet(pretty_style);
+
+    addLogLine(DEBUG, "Standard mode set up successfully");
 }
 void MainWindow::onStdBtnClicked(){
+    addLogLine(DEBUG, "Standard button clicked");
     QPushButton* btn = qobject_cast<QPushButton*>(sender());
     if (!btn) return;
 
     QString text = btn->text();
+    addLogLine(DEBUG, "Text of this button: "+text);
 
     if(text == "=") {
         StdMdCalc();
@@ -323,15 +335,19 @@ void MainWindow::onStdBtnClicked(){
     else if(text == "C") {
         std_input->clear();
         std_output->clear();
+        addLogLine(INFO, "Cleared standard io");
     }
     else if(text == "Del") {
         QString current = std_input->text();
         if (!current.isEmpty()) current.chop(1);
         std_input->setText(current);
+        addLogLine(INFO, "Chopped one char of standard input line");
     }
     else{
         std_input->setText(std_input->text() + text);
+        addLogLine(INFO, "Added one char to standard input line");
     }
+    addLogLine(DEBUG, "Finished processing standard button click");
 }
 void MainWindow::onStdCopy(){
     std_output->selectAll();
@@ -342,6 +358,8 @@ void MainWindow::onStdCopy(){
         cursor.clearSelection();
         std_output->setTextCursor(cursor);
     });
+
+    addLogLine(INFO, "Copied standard result");
 }
 
 void MainWindow::setupHpMd(){
@@ -414,13 +432,18 @@ void MainWindow::setupHpMd(){
     }
 
     hp_md_panel->setStyleSheet(pretty_style);
+
+    addLogLine(DEBUG, "High-precision mode set up successfully");
 }
 void MainWindow::onHpBtnClicked()
 {
+    addLogLine(DEBUG, "High-precision button clicked");
+
     QPushButton* btn = qobject_cast<QPushButton*>(sender());
     if(!btn) return;
 
     QString text = btn->text();
+    addLogLine(DEBUG, "Text of this button: "+text);
 
     if(text == "=") {
         HpMdCalc();
@@ -428,16 +451,20 @@ void MainWindow::onHpBtnClicked()
     else if(text == "C") {
         hp_input->clear();
         hp_output->clear();
+        addLogLine(INFO, "Cleared high-precision io");
     }
     else if(text == "Del") {
         QString current = hp_input->text();
         if (!current.isEmpty()) current.chop(1);
         hp_input->setText(current);
+        addLogLine(INFO, "Chopped one char of high-precision input line");
     }
     else{
         if(text == "&&") text = "&";
         hp_input->setText(hp_input->text() + text);
+        addLogLine(INFO, "Add one char to high-precision input line");
     }
+    addLogLine(DEBUG, "Finished high-precision button click");
 }
 void MainWindow::onHpCopy(){
     hp_output->selectAll();
@@ -447,6 +474,8 @@ void MainWindow::onHpCopy(){
         cursor.clearSelection();
         hp_output->setTextCursor(cursor);
     });
+
+    addLogLine(INFO, "Copied high-precision result");
 }
 
 void MainWindow::setupNtMd(){
@@ -610,31 +639,32 @@ void MainWindow::setupNtMd(){
 
     layout->addStretch();
     nt_md_panel->setStyleSheet(pretty_style);
+
+    addLogLine(DEBUG, "Number Theory mode set up successfully");
 }
 void MainWindow::onNtCopySqrt(){
     nt_sqrt_res->selectAll();
     nt_sqrt_res->copy();
+    addLogLine(INFO, "Copied sqrt result");
 }
 void MainWindow::onNtCopyFactor(){
     nt_factor_res->selectAll();
     nt_factor_res->copy();
+    addLogLine(INFO, "Copied factor result");
 }
 void MainWindow::onNtCopyGcd(){
     nt_gcd_res->selectAll();
     nt_gcd_res->copy();
+    addLogLine(INFO, "Copied gcd result");
 }
 void MainWindow::onNtCopyLcm(){
     nt_lcm_res->selectAll();
     nt_lcm_res->copy();
+    addLogLine(INFO, "Copied lcm result");
 }
 
 void MainWindow::setupSet()
-{
-    // qDebug() << "========================================";
-    // qDebug() << "🔧 setupSet() called - Building Settings Panel";
-    // qDebug() << "========================================";
-
-    // ===== 1. 创建设置面板 =====
+{// ===== 1. 创建设置面板 =====
     set_panel = new QWidget();
     QVBoxLayout* layout = new QVBoxLayout(set_panel);
     layout->setSpacing(10);
@@ -647,37 +677,30 @@ void MainWindow::setupSet()
     set_intro->setFixedHeight(25);
     set_intro->setWordWrap(true);
     layout->addWidget(set_intro);
-    // qDebug() << "  ✅ Title created:" << set_intro->text();
 
     // ===== 3. 语言设置 GroupBox =====
     lang_group = new QGroupBox(tr("语言 / Language"));
     QHBoxLayout *lang_layout = new QHBoxLayout(lang_group);
     lang_layout->setSpacing(15);
-    // qDebug() << "  ✅ Language group created";
 
     // ===== 4. 语言标签 =====
     lang_label = new QLabel(tr("语言："));
     lang_layout->addWidget(lang_label);
-    // qDebug() << "  ✅ Language label created:" << lang_label->text();
 
     // ===== 5. 语言下拉框 =====
     lang_combo = new QComboBox();
     lang_combo->addItem("简体中文", "zh_CN");
     lang_combo->addItem("English", "en");
     lang_layout->addWidget(lang_combo);
-    // qDebug() << "  ✅ ComboBox created with items: zh_CN, en";
 
     // ===== 6. 读取 INI 文件 =====
     QString appPath = QCoreApplication::applicationDirPath();
     QString iniPath = appPath + "/settings.ini";
-    // qDebug() << "  📁 INI file path:" << iniPath;
-    // qDebug() << "  📁 INI file exists:" << QFile::exists(iniPath);
 
     QSettings settings(iniPath, QSettings::IniFormat);
     settings.sync();
 
     QString savedLang = settings.value("Language", "zh_CN").toString();
-    // qDebug() << "  📖 Saved language from INI:" << savedLang;
 
     // ===== 7. 设置 ComboBox 到正确位置（阻断信号） =====
     lang_combo->blockSignals(true);
@@ -685,10 +708,8 @@ void MainWindow::setupSet()
     int targetIndex = lang_combo->findData(savedLang);
     if (targetIndex >= 0) {
         lang_combo->setCurrentIndex(targetIndex);
-        // qDebug() << "  ✅ Combo set to index:" << targetIndex << "(" << savedLang << ")";
     } else {
         lang_combo->setCurrentIndex(0);
-        // qDebug() << "  ⚠️ Saved language not found, defaulting to index 0 (zh_CN)";
     }
 
     lang_combo->blockSignals(false);
@@ -705,16 +726,13 @@ void MainWindow::setupSet()
     layout->addStretch();
 
     set_panel->setStyleSheet(pretty_style);
-    // qDebug() << "  ✅ Settings panel style applied";
 
-    // qDebug() << "========================================";
-    // qDebug() << "✅ setupSet() completed!";
-    // qDebug() << "   Combo shows:" << lang_combo->currentData().toString();
-    // qDebug() << "========================================";
+    addLogLine(DEBUG, "Settings set up successfully");
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event){
     if (event->type() == QEvent::KeyPress) {
+        addLogLine(DEBUG, "Key event occured");
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
         int key = keyEvent->key();
 
@@ -726,8 +744,10 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
             QString num = QString::number(key - Qt::Key_0);
             if (current_index == 0) {
                 std_input->setText(std_input->text() + num);
+                addLogLine(DEBUG, "Added a digit to standard input line");
             } else if (current_index == 1) {
                 hp_input->setText(hp_input->text() + num);
+                addLogLine(DEBUG, "Added a dight to high-precision input line");
             }
             return true;
         }
@@ -739,9 +759,11 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
                 if (current_index == 0) {
                     std_input->clear();
                     std_output->clear();
+                    addLogLine(INFO, "Cleared standard io");
                 } else if (current_index == 1) {
                     hp_input->clear();
                     hp_output->clear();
+                    addLogLine(INFO, "Cleared high-precision io");
                 }
                 return true;
             }
@@ -756,8 +778,10 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
             if (!current.isEmpty()) current.chop(1);
             if (current_index == 0) {
                 std_input->setText(current);
+                addLogLine(INFO, "Chopped one char from standard input line");
             } else if (current_index == 1) {
                 hp_input->setText(current);
+                addLogLine(INFO, "Chopped one char from high-precision input line");
             }
             return true;
         }
@@ -771,8 +795,10 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
             if (!current.isEmpty()) current.chop(1);
             if (current_index == 0) {
                 std_input->setText(current);
+                addLogLine(INFO, "Chopped one char from standard input line");
             } else if (current_index == 1) {
                 hp_input->setText(current);
+                addLogLine(INFO, "Chopped one char from high-precision input line");
             }
             return true;
         }
@@ -796,46 +822,58 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
                 std_input->setText(std_input->text() + ".");
             }
             // 高精度模式不支持小数
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Plus:
             if (current_index == 0) std_input->setText(std_input->text() + "+");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "+");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Minus:
             if (current_index == 0) std_input->setText(std_input->text() + "-");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "-");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Asterisk:  // Shift + 8
             if (current_index == 0) std_input->setText(std_input->text() + "*");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "*");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Slash:
             if (current_index == 0) std_input->setText(std_input->text() + "/");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "/");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_AsciiCircum:  // ^
             if(current_index == 0) std_input->setText(std_input->text() + "^");
             if (current_index == 1) hp_input->setText(hp_input->text() + "^");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Percent:
             if (current_index == 1) hp_input->setText(hp_input->text() + "%");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Ampersand:  // &
             if (current_index == 1) hp_input->setText(hp_input->text() + "&");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Bar:  // |
             if (current_index == 1) hp_input->setText(hp_input->text() + "|");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Exclam:  // !
             if (current_index == 1) hp_input->setText(hp_input->text() + "!");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_ParenLeft:
             if(current_index == 0) std_input->setText(std_input->text() + "(");
             if(current_index == 1) hp_input->setText(hp_input->text() + "(");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_ParenRight:
             if(current_index == 0) std_input->setText(std_input->text() + ")");
             if(current_index == 1) hp_input->setText(hp_input->text() + ")");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
             return true;
         }
     }
@@ -844,6 +882,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
 }
 
 void MainWindow::StdMdCalc(){
+    addLogLine(DEBUG, "Got into StdMdCalc()");
     std_output->setText(tr("正在计算中..."));
     std_output->repaint();
     QString expr = std_input->text();
@@ -859,9 +898,12 @@ void MainWindow::StdMdCalc(){
     else{
         std_output->setText(res_str);
         std_input->setText(res_str);
+        addLogLine(INFO, "Showed standard result");
     }
+    addLogLine(DEBUG, "Exiting from StdMdCalc()");
 }
 void MainWindow::HpMdCalc(){
+    addLogLine(DEBUG, "Got into HpMdCalc()");
     hp_output->setText(tr("正在计算中..."));
     hp_output->repaint();
     QString expr = hp_input->text();
@@ -884,9 +926,12 @@ void MainWindow::HpMdCalc(){
         }else{
             hp_output->setText(res_str);
         }
+        addLogLine(INFO, "Showed high-precision result");
     }
+    addLogLine(DEBUG, "Exiting from HpMdCalc()");
 }
 void MainWindow::onNtCalcSqrt(){
+    addLogLine(DEBUG, "Got into onNtCalcSqrt()");
     QString num = nt_sqrt_num->text();
     nt_sqrt_res->setText(tr("正在计算中..."));
     nt_sqrt_res->repaint();
@@ -895,6 +940,7 @@ void MainWindow::onNtCalcSqrt(){
         nt_sqrt_res->setText(tr("请输入一个数"));
         nt_sqrt_num->clear();
         nt_sqrt_num->setPlaceholderText(num);
+        addLogLine(ERROR, "Empty input in sqrt");
         return;
     }
     QString res;
@@ -909,8 +955,12 @@ void MainWindow::onNtCalcSqrt(){
     nt_sqrt_res->setText(res);
     nt_sqrt_num->clear();
     nt_sqrt_num->setPlaceholderText(num);
+    addLogLine(INFO, "Showed sqrt result");
+
+    addLogLine(DEBUG, "Exiting from onNtCalcSqrt()");
 }
 void MainWindow::onNtCalcFactor(){
+    addLogLine(DEBUG, "Got into onNtCalcFactor()");
     QString num = nt_factor_input->text();
     nt_factor_res->setText(tr("正在计算中..."));
     nt_factor_res->repaint();
@@ -919,6 +969,7 @@ void MainWindow::onNtCalcFactor(){
         nt_factor_res->setText(tr("请输入一个数"));
         nt_factor_input->clear();
         nt_factor_input->setPlaceholderText(num);
+        addLogLine(ERROR, "Empty input in factor");
         return;
     }
     QString res;
@@ -933,9 +984,13 @@ void MainWindow::onNtCalcFactor(){
     nt_factor_res->setText(res);
     nt_factor_input->clear();
     nt_factor_input->setPlaceholderText(num);
+    addLogLine(INFO, "Showed factor result");
+
+    addLogLine(DEBUG, "Exiting fro onNtCalcFactor()");
 }
 void MainWindow::onNtCalcGcd()
 {
+    addLogLine(DEBUG, "Got into onNtCalcGcd()");
     QString a = nt_gcd1->text();
     QString b = nt_gcd2->text();
     nt_gcd_res->setText(tr("正在计算中..."));
@@ -944,6 +999,7 @@ void MainWindow::onNtCalcGcd()
         nt_gcd_res->setText(tr("请输入两个数"));
         nt_gcd1->clear(); nt_gcd1->setPlaceholderText(a);
         nt_gcd2->clear(); nt_gcd2->setPlaceholderText(b);
+        addLogLine(ERROR, "Empty input in gcd");
         return;
     }
 
@@ -959,10 +1015,14 @@ void MainWindow::onNtCalcGcd()
     nt_gcd_res->setText(res);
     nt_gcd1->clear(); nt_gcd1->setPlaceholderText(a);
     nt_gcd2->clear(); nt_gcd2->setPlaceholderText(b);
+    addLogLine(INFO, "Showed gcd result");
+
+    addLogLine(DEBUG, "Exiting from onNtCalcGcd()");
 }
 // 最小公倍数计算
 void MainWindow::onNtCalcLcm()
 {
+    addLogLine(DEBUG, "Got into onNtCalcLcm()");
     QString a = nt_lcm1->text();
     QString b = nt_lcm2->text();
     nt_lcm_res->setText(tr("正在计算中..."));
@@ -972,6 +1032,7 @@ void MainWindow::onNtCalcLcm()
         nt_lcm_res->setText(tr("请输入两个数"));
         nt_lcm1->clear(); nt_lcm1->setPlaceholderText(a);
         nt_lcm2->clear(); nt_lcm2->setPlaceholderText(b);
+        addLogLine(ERROR, "Empty input in lcm");
         return;
     }
 
@@ -987,10 +1048,13 @@ void MainWindow::onNtCalcLcm()
     nt_lcm_res->setText(res);
     nt_lcm1->clear(); nt_lcm1->setPlaceholderText(a);
     nt_lcm2->clear(); nt_lcm2->setPlaceholderText(b);
+    addLogLine(INFO, "Showed lcm result");
+
+    addLogLine(DEBUG, "Exiting from onNtCalcLcm()");
 }
 
 void MainWindow::StdErrShow(Err err_info){
-    QString expr = std_input->text();
+    addLogLine(DEBUG, "Got into StdErrShow()");
     QString err_msg;
 
     // 根据错误码获取错误描述
@@ -1008,10 +1072,15 @@ void MainWindow::StdErrShow(Err err_info){
     case CALC_ERR:         err_msg = tr("计算错误"); break;
     default:               err_msg = tr("未知错误"); break;
     }
+    addLogLine(DEBUG, "Standard error message: "+err_msg);
 
     std_output->setText(QString("%1").arg(err_msg));
+    addLogLine(INFO, "Showed standard error message");
+
+    addLogLine(DEBUG, "Exiting from StdErrShow()");
 }
 void MainWindow::HpErrShow(Err err_info){
+    addLogLine(DEBUG, "Got into HpErrShow()");
     QString expr = hp_input->text();
     QString err_msg;
 
@@ -1030,83 +1099,98 @@ void MainWindow::HpErrShow(Err err_info){
     case CALC_ERR:         err_msg = tr("计算错误"); break;
     default:               err_msg = tr("未知错误"); break;
     }
+    addLogLine(DEBUG, "High-precision error message: "+err_msg);
 
     hp_output->setText(QString("%1").arg(err_msg));
+    addLogLine(INFO, "Showed high-precision error message");
+
+    addLogLine(DEBUG, "Exiting from HpErrShow()");
 }
 
 void MainWindow::NtSqrtErrShow(Err err_info){
+    addLogLine(DEBUG, "Got into NtSqrtErrShow()");
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
     case LARGE_NUM:    err_msg = tr("数据过大"); break;
     default:           err_msg = tr("未知错误"); break;
     }
+    addLogLine(DEBUG, "Sqrt error message: "+err_msg);
     nt_sqrt_res->setText(QString("%1").arg(err_msg));
+    addLogLine(INFO, "Showed sqrt error message");
+    addLogLine(DEBUG, "Exiting from NtSqrtErrShow()");
 }
 void MainWindow::NtFactorErrShow(Err err_info){
+    addLogLine(DEBUG, "Got into NtFactorErrShow()");
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
     case LARGE_NUM:    err_msg = tr("数据过大"); break;
     default:           err_msg = tr("未知错误"); break;
     }
+    addLogLine(DEBUG, "Factor error message: "+err_msg);
     nt_factor_res->setText(QString("%1").arg(err_msg));
+    addLogLine(INFO, "Showed factor error message");
+    addLogLine(DEBUG, "Exiting from NtFactorErrShow()");
 }
 void MainWindow::NtGcdErrShow(Err err_info){
+    addLogLine(DEBUG, "Got into NtGcdErrShow()");
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
     case LARGE_NUM:    err_msg = tr("数据过大"); break;
     default:           err_msg = tr("未知错误"); break;
     }
+    addLogLine(DEBUG, "Gcd error message: "+err_msg);
     nt_gcd_res->setText(QString("%1").arg(err_msg));
+    addLogLine(INFO, "Showed gcd error message");
+    addLogLine(DEBUG, "Exiting from NtGcdErrShow()");
 }
 void MainWindow::NtLcmErrShow(Err err_info){
+    addLogLine(DEBUG, "Got into NtLcmErrShow()");
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
     case LARGE_NUM:    err_msg = tr("数据过大"); break;
     default:           err_msg = tr("未知错误"); break;
     }
+    addLogLine(DEBUG, "Lcm error message: "+err_msg);
     nt_lcm_res->setText(QString("%1").arg(err_msg));
+    addLogLine(INFO, "Showed lcm error message");
+    addLogLine(DEBUG, "Exiting from NtLcmErrShow()");
 }
 
 void MainWindow::onLanguageChanged(int index){
     QString langCode = lang_combo->itemData(index).toString();
     switchLanguage(langCode);
+    addLogLine(INFO, "Switched language to "+langCode);
 }
 void MainWindow::switchLanguage(const QString &langCode)
 {
-    // qDebug() << "🔍 Switching to language:" << langCode;
-
     qApp->removeTranslator(&m_translator);
 
     QString appPath = QCoreApplication::applicationDirPath();
     QString qmFile = appPath + "/calculator_" + langCode + ".qm";
-    // qDebug() << "🔍 Trying to load:" << qmFile;
 
     if (m_translator.load(qmFile)) {
         qApp->installTranslator(&m_translator);
-        // qDebug() << "✅ Translation loaded from:" << qmFile;
+        addLogLine(DEBUG, "Translation loaded from: "+qmFile);
 
         // ===== 使用 INI 文件保存 =====
         QString iniPath = appPath + "/settings.ini";
         QSettings settings(iniPath, QSettings::IniFormat);
         settings.setValue("Language", langCode);
         settings.sync();  // 立即写入文件
-        // qDebug() << "✅ Settings saved to:" << iniPath;
+        addLogLine(DEBUG, "Settings saved to: "+iniPath);
 
         // 延迟重建 UI
         QTimer::singleShot(10, this, &MainWindow::retranslateUi);
     } else {
-        // qDebug() << "❌ Failed to load translation!";
+        addLogLine(ERROR, "Failed to load translation!");
     }
 }
 void MainWindow::retranslateUi()
 {
-    // qDebug() << "🔍 retranslateUi() called!";
-    // qDebug() << "🔍 Testing translation: '标准模式' ->" << tr("标准模式");
-
     // ===== 重建所有面板 =====
     rebuildAllPanels();
 
@@ -1118,18 +1202,16 @@ void MainWindow::retranslateUi()
     if (hp_md_btn) hp_md_btn->setText(tr("高精度模式"));
     if (nt_md_btn) nt_md_btn->setText(tr("数论工具"));
 
-    // qDebug() << "✅ retranslateUi() completed!";
+    addLogLine(DEBUG, "retranslateUi() completed");
 }
 void MainWindow::rebuildAllPanels()
 {
     if (!stacked_widget) {
-        // qDebug() << "❌ rebuildAllPanels: stacked_widget is null!";
         return;
     }
 
     // 保存当前激活的面板索引
     int currentIndex = stacked_widget->currentIndex();
-    // qDebug() << "🔍 rebuildAllPanels: currentIndex =" << currentIndex;
 
     // ===== 清空堆叠窗口中的所有面板 =====
     while (stacked_widget->count() > 0) {
@@ -1172,6 +1254,4 @@ void MainWindow::rebuildAllPanels()
     case 3: updateBtnStyle(set_btn); break;
     default: break;
     }
-
-    // qDebug() << "🔍 rebuildAllPanels: restored to index" << currentIndex;
 }

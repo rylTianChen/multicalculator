@@ -8,6 +8,7 @@ SOURCES += \
 
 HEADERS += \
     back/io_func.h \
+    back/log.h \
     mainwindow.h\
     back\calc_func.h\
     back\expr_func.h\
