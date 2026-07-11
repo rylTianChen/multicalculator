@@ -5,95 +5,62 @@
 typedef std::string str;
 #include<cstdio>
 #include<cmath>
+#include<cstring>
+#include<QString>
 #include"err.h"
+#include"numch_func.h"
+#include"../log.h"
 
+constexpr int DB_MAXN_LEN = 105;
 str doubleTOstr(double ori_num){
-    str res = "";
-    bool is_nega = false; 
-    if(ori_num < 0){
-        is_nega = true;
-        ori_num = -ori_num;
+    addLogLine(DEBUG, "Got into doubleTOstr()");
+    char *s = new char[DB_MAXN_LEN]();
+    sprintf(s, "%.10lf", ori_num);
+    int i = strlen(s);
+    addLogLine(DEBUG, "Original length of char[]: "+QString::fromStdString(str(HP(i))));
+    //去除小数点后多余的0
+    for(i--; i; i--){
+        if(s[i-1] == '.') break;
+        if(s[i] == '0') s[i] = 0;
     }
-    if(ori_num == 0.0){
-        return "0";
-    }
-    
-    int int_part = (int)ori_num;
-    int frac_part = int((ori_num - int_part) * 1e3 + 1e-9);
-    
-    // 转换整数部分
-    if(int_part == 0){
-        res = "0";
-    }else{
-        while(int_part > 0){
-            char digit = '0' + (int_part % 10);
-            res = digit + res;
-            int_part /= 10;
-        }
-    }
-    
-    // 处理小数部分
-    str frac_str = "";
-    int digit_cnt = 3;
-    while(digit_cnt--){
-    	char digit = (frac_part % 10) + '0';
-    	frac_str = digit+frac_str;
-    	frac_part /= 10;
-    }
-    return (is_nega ? "-" : "") + res + "." + frac_str;
+    str str_num(s);
+    addLogLine(DEBUG, "String form of result: "+QString::fromStdString(str_num));
+    delete[] s;
+    addLogLine(DEBUG, "Exiting from doubleTOstr()");
+    return str_num;
 }
 
 double strTOdouble(str ori, int ori_pos){
-    // if(ori.empty()){
-    //     throw Err(INPUT_ERR, -1, -1);  // 空字符串
-    // }
-    bool is_nega = false;
+    //字符串合法性检查
     int i = 0, len = ori.length();
-
-    // 处理正负号
-    if(ori[i] == '+'){
-        i++;
-    } else if(ori[i] == '-'){
-        is_nega = true;
-        i++;
-    }
-
-    // 检查符号后是否还有内容
-    if(i >= len){
-        throw Err(INPUT_ERR, ori_pos, ori_pos);  // 只有符号
-    }
-
-    double int_part = 0;
-    double frac_part = 0;
+    char ch, lst_ch = 0;
     bool has_dot = false;
-    int digit_cnt = 0;
-
-    for(; i < len; i++){
-        char c = ori[i];
-
-        if(c == '.'){
-            if(has_dot){
-                throw Err(MULTIPLE_DOT, i, i);  // 多个小数点
-            }
+    if(!len) throw Err(INPUT_ERR, ori_pos, ori_pos);
+    for(; i<len; i++){
+        ch = ori[i];
+        if(is_zf(ch)){
+            if(i != 0) throw Err(INPUT_ERR, ori_pos, ori_pos);
+        }
+        else if(is_digit(ch)){
+            // nothing
+        }
+        else if(ch == '.'){
+            if(i == 0) throw Err(INPUT_ERR, ori_pos, ori_pos);
+            if(!is_digit(lst_ch)) throw Err(INPUT_ERR, ori_pos, ori_pos);
+            if(has_dot) throw Err(MULTIPLE_DOT, ori_pos+i, ori_pos+i);
             has_dot = true;
-            continue;
         }
-        // if(c < '0' || c > '9'){
-        //     throw Err(INVALID_CHAR, i, i);  // 非法字符
-        // }
-        if(!has_dot){
-            // 整数部分
-            int_part = int_part * 10 + (c - '0');
-        } else {
-            // 小数部分
-            frac_part = frac_part * 10 + (c - '0');
-            digit_cnt++;
+        else{
+            throw Err(INPUT_ERR, ori_pos, ori_pos);
         }
+        lst_ch = ch;
     }
 
-    // 计算小数部分的值
-    double result = int_part + frac_part / pow(10, digit_cnt);
-    return is_nega ? -result : result;
+    const char *s = ori.c_str();
+    double res;
+    sscanf(s, "%lf", &res);
+    return res;
+
 }
 
 str numTOsci(str num_str) {
