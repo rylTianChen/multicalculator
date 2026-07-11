@@ -15,8 +15,6 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    initLog();
-    addLogLine(INFO, "Program started");
     setupUI();
     addLogLine(INFO, "Set up UI successfully");
 }
@@ -318,8 +316,6 @@ void MainWindow::setupStdMd(){
     }
 
     std_md_panel->setStyleSheet(pretty_style);
-
-    addLogLine(DEBUG, "Standard mode set up successfully");
 }
 void MainWindow::onStdBtnClicked(){
     addLogLine(DEBUG, "Standard button clicked");
@@ -432,8 +428,6 @@ void MainWindow::setupHpMd(){
     }
 
     hp_md_panel->setStyleSheet(pretty_style);
-
-    addLogLine(DEBUG, "High-precision mode set up successfully");
 }
 void MainWindow::onHpBtnClicked()
 {
@@ -639,8 +633,6 @@ void MainWindow::setupNtMd(){
 
     layout->addStretch();
     nt_md_panel->setStyleSheet(pretty_style);
-
-    addLogLine(DEBUG, "Number Theory mode set up successfully");
 }
 void MainWindow::onNtCopySqrt(){
     nt_sqrt_res->selectAll();
@@ -726,8 +718,6 @@ void MainWindow::setupSet()
     layout->addStretch();
 
     set_panel->setStyleSheet(pretty_style);
-
-    addLogLine(DEBUG, "Settings set up successfully");
 }
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event){

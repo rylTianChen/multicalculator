@@ -4,9 +4,12 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include "mainwindow.h"
+#include"back/log.h"
 
 int main(int argc, char *argv[])
 {
+    initLog();
+    addLogLine(INFO, "Program started");
 
     QApplication a(argc, argv);
 
@@ -23,7 +26,9 @@ int main(int argc, char *argv[])
 
     if (translator.load(qmFile)) {
         a.installTranslator(&translator);
+        addLogLine(DEBUG, "Translator installed successfully");
     } else {
+        addLogLine(DEBUG, "Failed to install translator!");
     }
 
     MainWindow w;

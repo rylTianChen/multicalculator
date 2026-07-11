@@ -3,6 +3,7 @@ QT += widgets
 CONFIG += c++17
 
 SOURCES += \
+    back/log.cpp \
     main.cpp \
     mainwindow.cpp
 
