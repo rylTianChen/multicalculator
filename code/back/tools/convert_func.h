@@ -13,20 +13,16 @@ typedef std::string str;
 
 constexpr int DB_MAXN_LEN = 105;
 str doubleTOstr(double ori_num){
-    addLogLine(DEBUG, "Got into doubleTOstr()");
     char *s = new char[DB_MAXN_LEN]();
     sprintf(s, "%.10lf", ori_num);
     int i = strlen(s);
-    addLogLine(DEBUG, "Original length of char[]: "+QString::fromStdString(str(HP(i))));
     //去除小数点后多余的0
     for(i--; i; i--){
         if(s[i-1] == '.') break;
         if(s[i] == '0') s[i] = 0;
     }
     str str_num(s);
-    addLogLine(DEBUG, "String form of result: "+QString::fromStdString(str_num));
     delete[] s;
-    addLogLine(DEBUG, "Exiting from doubleTOstr()");
     return str_num;
 }
 
