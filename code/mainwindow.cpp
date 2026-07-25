@@ -4,12 +4,12 @@
 #include <QTimer>
 #include <QStandardPaths>
 #include <QTextStream>
-#include<string>
+// #include<string>
 #include"back\calc_func.h"
 #include"back/io_func.h"
 #include"back\tools\convert_func.h"
 #include"back\tools\err.h"
-#include"back\tools\hpcalc.h"
+// #include"back\tools\hpcalc.h"
 #include"back/log.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -109,6 +109,8 @@ QString pretty_style =
 constexpr int DIRECT_SHOW_LENGTH_LIMIT = 100;
 
 void MainWindow::setupUI(){
+    addLogLine(DEBUG, "Entered setupUI()");
+    addIndent();
     setFixedSize(500, 650); // 设置窗口大小
     setWindowTitle(tr("高精度多功能计算器"));
 
@@ -178,6 +180,9 @@ void MainWindow::setupUI(){
     switchTOstd(); // 默认标准模式
 
     this->installEventFilter(this); // 监听自己的键盘事件
+
+    popIndent();
+    addLogLine(DEBUG, "Exiting from setupUI");
 }
 
 void MainWindow::fadeSwitch(int index){
@@ -216,7 +221,7 @@ void MainWindow::switchTOset(){
 
 void MainWindow::updateBtnStyle(QPushButton* active_btn){
     // 所有按钮恢复普通样式
-    QString normal_style =
+    static QString normal_style =
         "QPushButton {"
         "   background-color: #e0e0e0;"
         "   border: none;"
@@ -228,7 +233,7 @@ void MainWindow::updateBtnStyle(QPushButton* active_btn){
         "}";
 
     // 高亮按钮样式
-    QString active_style =
+    static QString active_style =
         "QPushButton {"
         "   background-color: #f39c12;"
         "   border: none;"
@@ -319,6 +324,7 @@ void MainWindow::setupStdMd(){
 }
 void MainWindow::onStdBtnClicked(){
     addLogLine(DEBUG, "Standard button clicked");
+    addIndent();
     QPushButton* btn = qobject_cast<QPushButton*>(sender());
     if (!btn) return;
 
@@ -331,19 +337,20 @@ void MainWindow::onStdBtnClicked(){
     else if(text == "C") {
         std_input->clear();
         std_output->clear();
-        addLogLine(INFO, "Cleared standard io");
+        addLogLine(INFO, "Cleared IO");
     }
     else if(text == "Del") {
         QString current = std_input->text();
         if (!current.isEmpty()) current.chop(1);
         std_input->setText(current);
-        addLogLine(INFO, "Chopped one char of standard input line");
+        addLogLine(INFO, "Chopped one char from input line");
     }
     else{
         std_input->setText(std_input->text() + text);
-        addLogLine(INFO, "Added one char to standard input line");
+        addLogLine(INFO, "Added '" + text + "' to input line");
     }
-    addLogLine(DEBUG, "Finished processing standard button click");
+    popIndent();
+    addLogLine(DEBUG, "Finishing handling standard button click");
 }
 void MainWindow::onStdCopy(){
     std_output->selectAll();
@@ -432,6 +439,7 @@ void MainWindow::setupHpMd(){
 void MainWindow::onHpBtnClicked()
 {
     addLogLine(DEBUG, "High-precision button clicked");
+    addIndent();
 
     QPushButton* btn = qobject_cast<QPushButton*>(sender());
     if(!btn) return;
@@ -445,20 +453,22 @@ void MainWindow::onHpBtnClicked()
     else if(text == "C") {
         hp_input->clear();
         hp_output->clear();
-        addLogLine(INFO, "Cleared high-precision io");
+        addLogLine(INFO, "Cleared IO");
     }
     else if(text == "Del") {
         QString current = hp_input->text();
         if (!current.isEmpty()) current.chop(1);
         hp_input->setText(current);
-        addLogLine(INFO, "Chopped one char of high-precision input line");
+        addLogLine(INFO, "Chopped one char from input line");
     }
     else{
         if(text == "&&") text = "&";
         hp_input->setText(hp_input->text() + text);
-        addLogLine(INFO, "Add one char to high-precision input line");
+        addLogLine(INFO, "Added '"+text+"' to input line");
     }
-    addLogLine(DEBUG, "Finished high-precision button click");
+
+    popIndent();
+    addLogLine(DEBUG, "Finishing handling high-precision button click");
 }
 void MainWindow::onHpCopy(){
     hp_output->selectAll();
@@ -709,7 +719,6 @@ void MainWindow::setupSet()
     // ===== 8. 连接信号 =====
     connect(lang_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &MainWindow::onLanguageChanged);
-    // qDebug() << "  ✅ Combo signal connected";
 
     // ===== 9. 完成布局 =====
     lang_layout->addStretch();
@@ -728,16 +737,17 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
 
         // 获取当前是哪个模式
         int current_index = stacked_widget->currentIndex();
+        addLogLine(DEBUG, "  Current index: "+QString::fromStdString(str(HP(current_index))));
 
         // 数字 0-9
         if (key >= Qt::Key_0 && key <= Qt::Key_9) {
             QString num = QString::number(key - Qt::Key_0);
             if (current_index == 0) {
                 std_input->setText(std_input->text() + num);
-                addLogLine(DEBUG, "Added a digit to standard input line");
+                addLogLine(DEBUG, "  Added '"+num+"' to input line");
             } else if (current_index == 1) {
                 hp_input->setText(hp_input->text() + num);
-                addLogLine(DEBUG, "Added a dight to high-precision input line");
+                addLogLine(DEBUG, "  Added '"+num+"' to input line");
             }
             return true;
         }
@@ -749,16 +759,18 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
                 if (current_index == 0) {
                     std_input->clear();
                     std_output->clear();
-                    addLogLine(INFO, "Cleared standard io");
+                    addLogLine(INFO, "  Cleared IO");
                 } else if (current_index == 1) {
                     hp_input->clear();
                     hp_output->clear();
-                    addLogLine(INFO, "Cleared high-precision io");
+                    addLogLine(INFO, "  Cleared IO");
                 }
                 return true;
             }
             break;
-        case Qt::Key_Delete: {
+
+        case Qt::Key_Delete:
+        case Qt::Key_Backspace:{
             QString current;
             if (current_index == 0) {
                 current = std_input->text();
@@ -768,30 +780,14 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
             if (!current.isEmpty()) current.chop(1);
             if (current_index == 0) {
                 std_input->setText(current);
-                addLogLine(INFO, "Chopped one char from standard input line");
+                addLogLine(INFO, "  Chopped one char from input line");
             } else if (current_index == 1) {
                 hp_input->setText(current);
-                addLogLine(INFO, "Chopped one char from high-precision input line");
+                addLogLine(INFO, "  Chopped one char from input line");
             }
             return true;
         }
-        case Qt::Key_Backspace: {
-            QString current;
-            if (current_index == 0) {
-                current = std_input->text();
-            } else if (current_index == 1) {
-                current = hp_input->text();
-            }
-            if (!current.isEmpty()) current.chop(1);
-            if (current_index == 0) {
-                std_input->setText(current);
-                addLogLine(INFO, "Chopped one char from standard input line");
-            } else if (current_index == 1) {
-                hp_input->setText(current);
-                addLogLine(INFO, "Chopped one char from high-precision input line");
-            }
-            return true;
-        }
+
         case Qt::Key_Return:
         case Qt::Key_Enter:
         case Qt::Key_Equal:
@@ -812,58 +808,58 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
                 std_input->setText(std_input->text() + ".");
             }
             // 高精度模式不支持小数
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '.' to input line");
             return true;
         case Qt::Key_Plus:
             if (current_index == 0) std_input->setText(std_input->text() + "+");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "+");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '+' to input line");
             return true;
         case Qt::Key_Minus:
             if (current_index == 0) std_input->setText(std_input->text() + "-");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "-");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '-' to input line");
             return true;
         case Qt::Key_Asterisk:  // Shift + 8
             if (current_index == 0) std_input->setText(std_input->text() + "*");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "*");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '*' to input line");
             return true;
         case Qt::Key_Slash:
             if (current_index == 0) std_input->setText(std_input->text() + "/");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "/");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '/' to input line");
             return true;
         case Qt::Key_AsciiCircum:  // ^
             if(current_index == 0) std_input->setText(std_input->text() + "^");
             if (current_index == 1) hp_input->setText(hp_input->text() + "^");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '^' to input line");
             return true;
         case Qt::Key_Percent:
             if (current_index == 1) hp_input->setText(hp_input->text() + "%");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added an operator to standard/high-precision input line");
             return true;
         case Qt::Key_Ampersand:  // &
             if (current_index == 1) hp_input->setText(hp_input->text() + "&");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '&' to input line");
             return true;
         case Qt::Key_Bar:  // |
             if (current_index == 1) hp_input->setText(hp_input->text() + "|");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '|' to input line");
             return true;
         case Qt::Key_Exclam:  // !
             if (current_index == 1) hp_input->setText(hp_input->text() + "!");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '!' to input line");
             return true;
         case Qt::Key_ParenLeft:
             if(current_index == 0) std_input->setText(std_input->text() + "(");
             if(current_index == 1) hp_input->setText(hp_input->text() + "(");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added '(' to input line");
             return true;
         case Qt::Key_ParenRight:
             if(current_index == 0) std_input->setText(std_input->text() + ")");
             if(current_index == 1) hp_input->setText(hp_input->text() + ")");
-            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "  Added ')' to input line");
             return true;
         }
     }
@@ -873,6 +869,7 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
 
 void MainWindow::StdMdCalc(){
     addLogLine(DEBUG, "Got into StdMdCalc()");
+    addIndent();
     std_output->setText(tr("正在计算中..."));
     std_output->repaint();
     QString expr = std_input->text();
@@ -890,10 +887,14 @@ void MainWindow::StdMdCalc(){
         std_input->setText(res_str);
         addLogLine(INFO, "Showed standard result");
     }
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from StdMdCalc()");
 }
 void MainWindow::HpMdCalc(){
     addLogLine(DEBUG, "Got into HpMdCalc()");
+    addIndent();
+
     hp_output->setText(tr("正在计算中..."));
     hp_output->repaint();
     QString expr = hp_input->text();
@@ -916,12 +917,17 @@ void MainWindow::HpMdCalc(){
         }else{
             hp_output->setText(res_str);
         }
+
         addLogLine(INFO, "Showed high-precision result");
     }
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from HpMdCalc()");
 }
 void MainWindow::onNtCalcSqrt(){
     addLogLine(DEBUG, "Got into onNtCalcSqrt()");
+    addIndent();
+
     QString num = nt_sqrt_num->text();
     nt_sqrt_res->setText(tr("正在计算中..."));
     nt_sqrt_res->repaint();
@@ -947,10 +953,13 @@ void MainWindow::onNtCalcSqrt(){
     nt_sqrt_num->setPlaceholderText(num);
     addLogLine(INFO, "Showed sqrt result");
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from onNtCalcSqrt()");
 }
 void MainWindow::onNtCalcFactor(){
     addLogLine(DEBUG, "Got into onNtCalcFactor()");
+    addIndent();
+
     QString num = nt_factor_input->text();
     nt_factor_res->setText(tr("正在计算中..."));
     nt_factor_res->repaint();
@@ -976,11 +985,14 @@ void MainWindow::onNtCalcFactor(){
     nt_factor_input->setPlaceholderText(num);
     addLogLine(INFO, "Showed factor result");
 
+    popIndent();
     addLogLine(DEBUG, "Exiting fro onNtCalcFactor()");
 }
 void MainWindow::onNtCalcGcd()
 {
     addLogLine(DEBUG, "Got into onNtCalcGcd()");
+    addIndent();
+
     QString a = nt_gcd1->text();
     QString b = nt_gcd2->text();
     nt_gcd_res->setText(tr("正在计算中..."));
@@ -1007,12 +1019,15 @@ void MainWindow::onNtCalcGcd()
     nt_gcd2->clear(); nt_gcd2->setPlaceholderText(b);
     addLogLine(INFO, "Showed gcd result");
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from onNtCalcGcd()");
 }
 // 最小公倍数计算
 void MainWindow::onNtCalcLcm()
 {
     addLogLine(DEBUG, "Got into onNtCalcLcm()");
+    addIndent();
+
     QString a = nt_lcm1->text();
     QString b = nt_lcm2->text();
     nt_lcm_res->setText(tr("正在计算中..."));
@@ -1040,11 +1055,14 @@ void MainWindow::onNtCalcLcm()
     nt_lcm2->clear(); nt_lcm2->setPlaceholderText(b);
     addLogLine(INFO, "Showed lcm result");
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from onNtCalcLcm()");
 }
 
 void MainWindow::StdErrShow(Err err_info){
     addLogLine(DEBUG, "Got into StdErrShow()");
+    addIndent();
+
     QString err_msg;
 
     // 根据错误码获取错误描述
@@ -1067,10 +1085,13 @@ void MainWindow::StdErrShow(Err err_info){
     std_output->setText(QString("%1").arg(err_msg));
     addLogLine(INFO, "Showed standard error message");
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from StdErrShow()");
 }
 void MainWindow::HpErrShow(Err err_info){
     addLogLine(DEBUG, "Got into HpErrShow()");
+    addIndent();
+
     QString expr = hp_input->text();
     QString err_msg;
 
@@ -1094,11 +1115,14 @@ void MainWindow::HpErrShow(Err err_info){
     hp_output->setText(QString("%1").arg(err_msg));
     addLogLine(INFO, "Showed high-precision error message");
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from HpErrShow()");
 }
 
 void MainWindow::NtSqrtErrShow(Err err_info){
     addLogLine(DEBUG, "Got into NtSqrtErrShow()");
+    addIndent();
+
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
@@ -1108,10 +1132,14 @@ void MainWindow::NtSqrtErrShow(Err err_info){
     addLogLine(DEBUG, "Sqrt error message: "+err_msg);
     nt_sqrt_res->setText(QString("%1").arg(err_msg));
     addLogLine(INFO, "Showed sqrt error message");
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtSqrtErrShow()");
 }
 void MainWindow::NtFactorErrShow(Err err_info){
     addLogLine(DEBUG, "Got into NtFactorErrShow()");
+    addIndent();
+
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
@@ -1121,10 +1149,14 @@ void MainWindow::NtFactorErrShow(Err err_info){
     addLogLine(DEBUG, "Factor error message: "+err_msg);
     nt_factor_res->setText(QString("%1").arg(err_msg));
     addLogLine(INFO, "Showed factor error message");
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtFactorErrShow()");
 }
 void MainWindow::NtGcdErrShow(Err err_info){
     addLogLine(DEBUG, "Got into NtGcdErrShow()");
+    addIndent();
+
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
@@ -1134,10 +1166,14 @@ void MainWindow::NtGcdErrShow(Err err_info){
     addLogLine(DEBUG, "Gcd error message: "+err_msg);
     nt_gcd_res->setText(QString("%1").arg(err_msg));
     addLogLine(INFO, "Showed gcd error message");
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtGcdErrShow()");
 }
 void MainWindow::NtLcmErrShow(Err err_info){
     addLogLine(DEBUG, "Got into NtLcmErrShow()");
+    addIndent();
+
     QString err_msg;
     switch(err_info.err_code){
     case NOT_POSI_INT: err_msg = tr("输入不是正整数"); break;
@@ -1147,6 +1183,8 @@ void MainWindow::NtLcmErrShow(Err err_info){
     addLogLine(DEBUG, "Lcm error message: "+err_msg);
     nt_lcm_res->setText(QString("%1").arg(err_msg));
     addLogLine(INFO, "Showed lcm error message");
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtLcmErrShow()");
 }
 
@@ -1155,8 +1193,7 @@ void MainWindow::onLanguageChanged(int index){
     switchLanguage(langCode);
     addLogLine(INFO, "Switched language to "+langCode);
 }
-void MainWindow::switchLanguage(const QString &langCode)
-{
+void MainWindow::switchLanguage(const QString &langCode){
     qApp->removeTranslator(&m_translator);
 
     QString appPath = QCoreApplication::applicationDirPath();

@@ -8,11 +8,11 @@
 
 int main(int argc, char *argv[])
 {
-    initLog();
-    addLogLine(INFO, "Program started");
 
     QApplication a(argc, argv);
 
+    initLog();
+    addLogLine(INFO, "Program started");
     // ===== 使用 INI 文件存储设置 =====
     QString iniPath = QCoreApplication::applicationDirPath() + "/settings.ini";
     QSettings settings(iniPath, QSettings::IniFormat);
