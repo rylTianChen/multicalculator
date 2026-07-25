@@ -7,8 +7,10 @@
 #include <QDebug>
 #include"log.h"
 
-void saveResultToDesktop(const QString &res_str)
-{
+void saveResultToDesktop(const QString &res_str){
+    addLogLine(DEBUG, "Got into saveResultToDesktop()");
+    addIndent();
+
     QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     QString filePath = desktopPath + "/calculation_result.txt";
 
@@ -23,6 +25,8 @@ void saveResultToDesktop(const QString &res_str)
         addLogLine(ERROR, "Failed to write long result to text file");
     }
 
+    popIndent();
+    addLogLine(DEBUG, "Exiting from saveResultToDesktop()");
 }
 
 #endif // IO_FUNC_H

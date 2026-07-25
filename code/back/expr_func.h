@@ -59,6 +59,8 @@ void new_num_tk(Token<T>*& prev, T num){
     prev->next = item;
 
     prev = item;
+
+    addLogLine(DEBUG, "Created a number token");
 }
 template<typename T>
 void new_op_tk(Token<T>*& prev, char op, int lv){
@@ -73,6 +75,8 @@ void new_op_tk(Token<T>*& prev, char op, int lv){
     prev->next = item;
 
     prev = item;
+
+    addLogLine(DEBUG, "Created an operator token");
 }
 
 template<typename T>
@@ -85,11 +89,13 @@ void clear_tk(Token<T>* head){
     }
     delete head;
     delete tmp;
+
     addLogLine(DEBUG, "All tokens cleared");
 }
 
 void double_expr_read(Token<double>* head, str ori_input_str){
     addLogLine(DEBUG, "Got into double_expr_read()");
+    addIndent();
 
     char lst_ch = 0;
     int par_lv = 0;//括号等级
@@ -99,13 +105,6 @@ void double_expr_read(Token<double>* head, str ori_input_str){
     Token<double>* lst_tk = head;
 
     for(auto t : ori_input_str){
-        //    	putchar(t);
-        //    	putchar(':');
-        //    	print_tk(head);
-        //    	std::cout << "temp_num:" << temp_num << std::endl;
-        // in_log(t);
-        //        putchar(t);
-        // if(t < 20) break;//换行符
         if(t<33 || t==',' || t=='_') continue;//忽略空格逗号下划线
         if(is_digit(t) || t == '.'){
             if(lst_ch == ')'){
@@ -202,10 +201,12 @@ void double_expr_read(Token<double>* head, str ori_input_str){
         return;
     }
 
-    addLogLine(DEBUG, "Exited from double_expr_read()");
+    popIndent();
+    addLogLine(DEBUG, "Exiting from double_expr_read()");
 }
 void hp_expr_read(Token<HP>* head, str ori_input_str){
     addLogLine(DEBUG, "Got into hp_expr_read()");
+    addIndent();
 
     char lst_ch = 0;
     int par_lv = 0;//括号等级
@@ -309,6 +310,7 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
         return;
     }
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from hp_expr_read()");
 }
 
@@ -351,6 +353,8 @@ void math_check(T a, char op, T b){
 template<typename T>
 T calculate(Token<T>* head){
     addLogLine(DEBUG, "Got into calculate()");
+    addIndent();
+
     Token<T>* tail=head;
     Token<T>* i;
     Token<T> *lop, *rop, *nop;
@@ -428,6 +432,8 @@ T calculate(Token<T>* head){
         return 0;
 	}
     c = head->next->num;
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from calculate()");
     return c;
 }

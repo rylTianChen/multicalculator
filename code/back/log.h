@@ -14,6 +14,8 @@ constexpr int ERROR = 103;
 
 void initLog();
 void addLogLine(int type, const QString &message);
+void addIndent();
+void popIndent();
 
 
 

@@ -13,6 +13,8 @@ constexpr int NT_LEN_LIMIT = 20;
 
 double StdCalcFunc(str ori_input_str){
     addLogLine(DEBUG, "Got into StdCalcFunc()");
+    addIndent();
+
     init_op_lv();
     //head、tail均不存值
     Token<double>* head = new Token<double>;
@@ -42,12 +44,16 @@ double StdCalcFunc(str ori_input_str){
     }
     addLogLine(DEBUG, "Result: "+QString::fromStdString(doubleTOstr(res)));
     clear_tk(head);
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from StdCalcFunc()");
     return res;
 }
 
 HP HpCalcFunc(str ori_input_str){
     addLogLine(DEBUG, "Got into HpCalcFunc()");
+    addIndent();
+
     init_op_lv();
     //head、tail均不存值
     Token<HP>* head = new Token<HP>;
@@ -77,12 +83,15 @@ HP HpCalcFunc(str ori_input_str){
     }
     addLogLine(DEBUG, "Result: "+QString::fromStdString(str(res)));
     clear_tk(head);
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from HpCalcFunc()");
     return res;
 }
 
 str NtSqrtFunc(str ori_input_str){
     addLogLine(DEBUG, "Got into NtSqrtFunc()");
+    addIndent();
 
     addLogLine(DEBUG, "Number: "+QString::fromStdString(ori_input_str));
     HP ori_num(ori_input_str);
@@ -109,11 +118,13 @@ str NtSqrtFunc(str ori_input_str){
     }
     addLogLine(DEBUG, "Result: "+QString::fromStdString(res));
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtSqrtFunc()");
     return res;
 }
 str NtFactorFunc(str ori_input_str){
     addLogLine(DEBUG, "Got into NtFactorFunc()");
+    addIndent();
 
     addLogLine(DEBUG, "Number: "+QString::fromStdString(ori_input_str));
     HP ori_num(ori_input_str);
@@ -151,6 +162,7 @@ str NtFactorFunc(str ori_input_str){
     }
     addLogLine(DEBUG, "Result: "+QString::fromStdString(res));
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtFactorFunc()");
     return res;
 }
@@ -166,6 +178,7 @@ HP hp_gcd(HP a, HP b){
 }
 str NtGcdFunc(str ori_str1, str ori_str2){
     addLogLine(DEBUG, "Got into NtGcdFunc()");
+    addIndent();
 
     addLogLine(DEBUG, "Numbers: "
                           +QString::fromStdString(ori_str1) + " " + QString::fromStdString(ori_str2));
@@ -190,6 +203,8 @@ str NtGcdFunc(str ori_str1, str ori_str2){
     if(a==1 || b==1) return "1";
     HP gcd_num = hp_gcd(a, b);
     addLogLine(DEBUG, "Result: "+QString::fromStdString(str(gcd_num)));
+
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtGcdFunc()");
     return str(gcd_num);
 }
@@ -198,6 +213,7 @@ HP hp_lcm(HP a, HP b){
 }
 str NtLcmFunc(str ori_str1, str ori_str2){
     addLogLine(DEBUG, "Got into NtLcmFunc()");
+    addIndent();
 
     addLogLine(DEBUG, "Numbers: "
                           +QString::fromStdString(ori_str1) + " " + QString::fromStdString(ori_str2));
@@ -223,6 +239,7 @@ str NtLcmFunc(str ori_str1, str ori_str2){
     HP lcm_num = hp_lcm(a, b);
     addLogLine(DEBUG, "Result: "+QString::fromStdString(str(lcm_num)));
 
+    popIndent();
     addLogLine(DEBUG, "Exiting from NtLcmFunc()");
     return str(lcm_num);
 }
