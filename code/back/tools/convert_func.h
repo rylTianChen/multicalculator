@@ -18,9 +18,10 @@ str doubleTOstr(double ori_num){
     int i = strlen(s);
     //去除小数点后多余的0
     for(i--; i; i--){
-        if(s[i-1] == '.') break;
+        if(s[i] == '.') break;
         if(s[i] == '0') s[i] = 0;
     }
+    if(s[i] == '.') s[i] = 0;
     str str_num(s);
     delete[] s;
     return str_num;
