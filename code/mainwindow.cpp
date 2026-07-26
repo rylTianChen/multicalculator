@@ -54,6 +54,7 @@ QString pretty_style =
     "   border: 1px solid #d0d0d0;"
     "   border-radius: 6px;"
     "   padding: 4px;"
+    "   font-size: 13px;"
     "   background-color: #fafafa;"
     "}"
 
@@ -111,7 +112,7 @@ constexpr int DIRECT_SHOW_LENGTH_LIMIT = 100;
 void MainWindow::setupUI(){
     addLogLine(DEBUG, "Entered setupUI()");
     addIndent();
-    setFixedSize(500, 650); // 设置窗口大小
+    setFixedSize(500, 600); // 设置窗口大小
     setWindowTitle(tr("高精度多功能计算器"));
 
     central_widget = new QWidget(this);
@@ -294,9 +295,9 @@ void MainWindow::setupStdMd(){
     gridLayout->setSpacing(8);
 
     QStringList btns = {
-        "7", "8", "9", "/", "C",
-        "4", "5", "6", "*", "(",
-        "1", "2", "3", "-", ")",
+        "7", "8", "9", "/", "(",
+        "4", "5", "6", "*", ")",
+        "1", "2", "3", "-", "C",
         "0", ".", "=", "+", "Del"
     };
 
@@ -381,7 +382,7 @@ void MainWindow::setupHpMd(){
 
     // 输入框
     hp_input = new QLineEdit();
-    hp_input->setPlaceholderText(tr("输入表达式，例如: 12345678901234567890 + 98765432109876543210"));
+    hp_input->setPlaceholderText(tr("输入表达式，例如: 2^200000%998244353"));
     hp_input->setStyleSheet("font-size: 18px; padding: 8px;");
     hp_input->setReadOnly(true);
     layout->addWidget(hp_input);
@@ -390,7 +391,7 @@ void MainWindow::setupHpMd(){
     QHBoxLayout* output_layout = new QHBoxLayout();
     hp_output = new QTextEdit();
     hp_output->setReadOnly(true);
-    hp_output->setPlaceholderText(tr("计算结果会显示在这里"));
+    hp_output->setPlaceholderText(tr("计算结果"));
     hp_output->setStyleSheet("font-size: 16px; background-color: #f5f5f5;");
     hp_output->setMaximumHeight(100);
     output_layout->addWidget(hp_output);
@@ -408,9 +409,9 @@ void MainWindow::setupHpMd(){
 
     QStringList buttons = {
         "7", "8", "9", "/", "C",
-        "4", "5", "6", "*", "^",
-        "1", "2", "3", "-", "%",
-        "0", "=", "+", "Del", " ",
+        "4", "5", "6", "*", "Del",
+        "1", "2", "3", "-", " ",
+        "0", "=", "+", "^", "%",
         "&&", "|", "!", "(", ")"
     };
 
@@ -504,12 +505,10 @@ void MainWindow::setupNtMd(){
     sqrtSymbol->setStyleSheet("font-size: 18px;");
     nt_sqrt_num = new QLineEdit();
     nt_sqrt_num->setPlaceholderText(tr("根号内数字"));
-    nt_sqrt_num->setFixedWidth(150);
     nt_sqrt_num->setFixedHeight(25);
 
     sqrt_layout->addWidget(sqrtSymbol);
     sqrt_layout->addWidget(nt_sqrt_num);
-    sqrt_layout->addStretch();
     QPushButton* sqrt_calc_btn = new QPushButton(tr("计算"));
     sqrt_calc_btn->setFixedWidth(80);
     sqrt_calc_btn->setFixedHeight(25);
@@ -520,12 +519,12 @@ void MainWindow::setupNtMd(){
     nt_sqrt_res = new QTextEdit();
     nt_sqrt_res->setReadOnly(true);
     nt_sqrt_res->setPlaceholderText(tr("化简结果"));
-    nt_sqrt_res->setMaximumHeight(60);
+    nt_sqrt_res->setFixedHeight(35);
     nt_sqrt_res->setStyleSheet("background-color: #f5f5f5;");
     sqrt_res_layout->addWidget(nt_sqrt_res);
 
     QPushButton* sqrt_copy_btn = new QPushButton(tr("复制"));
-    sqrt_copy_btn->setFixedSize(50, 50);
+    sqrt_copy_btn->setFixedSize(50, 35);
     connect(sqrt_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopySqrt);
     sqrt_res_layout->addWidget(sqrt_copy_btn);
 
@@ -551,12 +550,12 @@ void MainWindow::setupNtMd(){
     nt_factor_res = new QTextEdit();
     nt_factor_res->setReadOnly(true);
     nt_factor_res->setPlaceholderText(tr("分解结果"));
-    nt_factor_res->setMaximumHeight(60);
+    nt_factor_res->setFixedHeight(35);
     nt_factor_res->setStyleSheet("background-color: #f5f5f5;");
     factor_res_layout->addWidget(nt_factor_res);
 
     QPushButton* factor_copy_btn = new QPushButton(tr("复制"));
-    factor_copy_btn->setFixedSize(50, 50);
+    factor_copy_btn->setFixedSize(50, 35);
     connect(factor_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyFactor);
     factor_res_layout->addWidget(factor_copy_btn);
 
@@ -568,12 +567,12 @@ void MainWindow::setupNtMd(){
     QHBoxLayout* gcd_input_layout = new QHBoxLayout();
     nt_gcd1 = new QLineEdit();
     nt_gcd1->setPlaceholderText(tr("数A"));
-    nt_gcd1->setFixedWidth(120);
+    nt_gcd1->setFixedWidth(180);
     nt_gcd1->setFixedHeight(25);
     QLabel* comma1 = new QLabel(",");
     nt_gcd2 = new QLineEdit();
     nt_gcd2->setPlaceholderText(tr("数B"));
-    nt_gcd2->setFixedWidth(120);
+    nt_gcd2->setFixedWidth(180);
     nt_gcd2->setFixedHeight(25);
     QPushButton* gcd_calc_btn = new QPushButton(tr("计算"));
     gcd_calc_btn->setFixedWidth(80);
@@ -583,19 +582,18 @@ void MainWindow::setupNtMd(){
     gcd_input_layout->addWidget(comma1);
     gcd_input_layout->addWidget(nt_gcd2);
     gcd_input_layout->addWidget(gcd_calc_btn);
-    gcd_input_layout->addStretch();
     gcd_group->setLayout(gcd_input_layout);
 
     QHBoxLayout* gcd_res_layout = new QHBoxLayout();
     nt_gcd_res = new QTextEdit();
     nt_gcd_res->setReadOnly(true);
     nt_gcd_res->setPlaceholderText(tr("最大公因数"));
-    nt_gcd_res->setMaximumHeight(60);
+    nt_gcd_res->setFixedHeight(35);
     nt_gcd_res->setStyleSheet("background-color: #f5f5f5;");
     gcd_res_layout->addWidget(nt_gcd_res);
 
     QPushButton* gcd_copy_btn = new QPushButton(tr("复制"));
-    gcd_copy_btn->setFixedSize(50, 50);
+    gcd_copy_btn->setFixedSize(50, 35);
     connect(gcd_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyGcd);
     gcd_res_layout->addWidget(gcd_copy_btn);
 
@@ -607,12 +605,12 @@ void MainWindow::setupNtMd(){
     QHBoxLayout* lcm_input_layout = new QHBoxLayout();
     nt_lcm1 = new QLineEdit();
     nt_lcm1->setPlaceholderText(tr("数A"));
-    nt_lcm1->setFixedWidth(120);
+    nt_lcm1->setFixedWidth(180);
     nt_lcm1->setFixedHeight(25);
     QLabel* comma2 = new QLabel(",");
     nt_lcm2 = new QLineEdit();
     nt_lcm2->setPlaceholderText(tr("数B"));
-    nt_lcm2->setFixedWidth(120);
+    nt_lcm2->setFixedWidth(180);
     nt_lcm2->setFixedHeight(25);
     QPushButton* lcm_calc_btn = new QPushButton(tr("计算"));
     lcm_calc_btn->setFixedWidth(80);
@@ -622,19 +620,18 @@ void MainWindow::setupNtMd(){
     lcm_input_layout->addWidget(comma2);
     lcm_input_layout->addWidget(nt_lcm2);
     lcm_input_layout->addWidget(lcm_calc_btn);
-    lcm_input_layout->addStretch();
     lcm_group->setLayout(lcm_input_layout);
 
     QHBoxLayout* lcm_res_layout = new QHBoxLayout();
     nt_lcm_res = new QTextEdit();
     nt_lcm_res->setReadOnly(true);
     nt_lcm_res->setPlaceholderText(tr("最小公倍数"));
-    nt_lcm_res->setMaximumHeight(60);
+    nt_lcm_res->setFixedHeight(35);
     nt_lcm_res->setStyleSheet("background-color: #f5f5f5;");
     lcm_res_layout->addWidget(nt_lcm_res);
 
     QPushButton* lcm_copy_btn = new QPushButton(tr("复制"));
-    lcm_copy_btn->setFixedSize(50, 50);
+    lcm_copy_btn->setFixedSize(50, 35);
     connect(lcm_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyLcm);
     lcm_res_layout->addWidget(lcm_copy_btn);
 
@@ -986,7 +983,7 @@ void MainWindow::onNtCalcFactor(){
     addLogLine(INFO, "Showed factor result");
 
     popIndent();
-    addLogLine(DEBUG, "Exiting fro onNtCalcFactor()");
+    addLogLine(DEBUG, "Exiting from onNtCalcFactor()");
 }
 void MainWindow::onNtCalcGcd()
 {
