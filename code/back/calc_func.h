@@ -9,7 +9,7 @@ typedef std::string str;
 #include"tools/hpcalc.h"
 #include"log.h"
 
-constexpr int NT_LEN_LIMIT = 20;
+constexpr int NT_LEN_LIMIT = 15;
 
 double StdCalcFunc(str ori_input_str){
     addLogLine(DEBUG, "Got into StdCalcFunc()");
