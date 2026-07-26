@@ -26,6 +26,14 @@ A powerful multi-mode calculator with high-precision integer arithmetic, standar
 - **Prime Factorization**: Break down integers into prime factors
 - **GCD / LCM**: Compute greatest common divisor and least common multiple
 
+### Settings
+- Language switching between Chinese and English
+
+### Log System
+- Recording program behavior in `./log/log.txt` (relative to the executable)
+- Timestamped entries with `INFO`, `DEBUG`, and `ERROR` levels
+- Overwritten on each program start to keep logs clean
+
 ---
 
 ## 🖥️ Screenshots
