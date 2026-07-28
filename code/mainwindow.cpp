@@ -107,12 +107,14 @@ QString pretty_style =
     "   selection-color: white;"
     "}";
 
+typedef std::string str;
+
 constexpr int DIRECT_SHOW_LENGTH_LIMIT = 100;
 
 void MainWindow::setupUI(){
     addLogLine(DEBUG, "Entered setupUI()");
     addIndent();
-    setFixedSize(500, 600); // 设置窗口大小
+    setFixedSize(450, 550); // 设置窗口大小
     setWindowTitle(tr("高精度多功能计算器"));
 
     central_widget = new QWidget(this);
@@ -269,7 +271,7 @@ void MainWindow::setupStdMd(){
 
     // 输入框
     std_input = new QLineEdit();
-    std_input->setPlaceholderText(tr("输入表达式，例如: 123 + 456*789"));
+    std_input->setPlaceholderText(tr("输入表达式"));
     std_input->setStyleSheet("font-size: 18px; padding: 8px;");
     std_input->setReadOnly(true);
     layout->addWidget(std_input);
@@ -326,6 +328,7 @@ void MainWindow::setupStdMd(){
 void MainWindow::onStdBtnClicked(){
     addLogLine(DEBUG, "Standard button clicked");
     addIndent();
+
     QPushButton* btn = qobject_cast<QPushButton*>(sender());
     if (!btn) return;
 
@@ -350,12 +353,14 @@ void MainWindow::onStdBtnClicked(){
         std_input->setText(std_input->text() + text);
         addLogLine(INFO, "Added '" + text + "' to input line");
     }
+
     popIndent();
     addLogLine(DEBUG, "Finishing handling standard button click");
 }
 void MainWindow::onStdCopy(){
     std_output->selectAll();
     std_output->copy();
+
     // 取消选中
     QTimer::singleShot(100, [this]() {
         QTextCursor cursor = std_output->textCursor();
@@ -382,7 +387,7 @@ void MainWindow::setupHpMd(){
 
     // 输入框
     hp_input = new QLineEdit();
-    hp_input->setPlaceholderText(tr("输入表达式，例如: 2^200000%998244353"));
+    hp_input->setPlaceholderText(tr("输入表达式"));
     hp_input->setStyleSheet("font-size: 18px; padding: 8px;");
     hp_input->setReadOnly(true);
     layout->addWidget(hp_input);
@@ -490,7 +495,7 @@ void MainWindow::setupNtMd(){
     layout->setContentsMargins(0, 0, 0, 0);
 
     // 介绍文字 - 固定高度
-    QLabel* intro = new QLabel(tr("一些简单数论功能，要求输入全部是正整数"));
+    QLabel* intro = new QLabel(tr("一些简单数论功能，要求输入正整数，长度不超过15位"));
     intro->setStyleSheet("color: #888; font-size: 16px; background-color: transparent;");
     intro->setAlignment(Qt::AlignCenter);
     intro->setFixedHeight(45);
@@ -499,21 +504,22 @@ void MainWindow::setupNtMd(){
 
     // ========== 1. 根号化简 ==========
     QGroupBox* sqrt_group = new QGroupBox(tr("根号化简"));
-    QHBoxLayout* sqrt_layout = new QHBoxLayout(sqrt_group);
+    QVBoxLayout *sqrt_layout = new QVBoxLayout(sqrt_group);
 
+    QHBoxLayout* sqrt_input_layout = new QHBoxLayout();
     QLabel* sqrtSymbol = new QLabel("√");
     sqrtSymbol->setStyleSheet("font-size: 18px;");
     nt_sqrt_num = new QLineEdit();
-    nt_sqrt_num->setPlaceholderText(tr("根号内数字"));
+    nt_sqrt_num->setPlaceholderText(tr("输入正整数"));
     nt_sqrt_num->setFixedHeight(25);
 
-    sqrt_layout->addWidget(sqrtSymbol);
-    sqrt_layout->addWidget(nt_sqrt_num);
+    sqrt_input_layout->addWidget(sqrtSymbol);
+    sqrt_input_layout->addWidget(nt_sqrt_num);
     QPushButton* sqrt_calc_btn = new QPushButton(tr("计算"));
     sqrt_calc_btn->setFixedWidth(80);
     sqrt_calc_btn->setFixedHeight(25);
     connect(sqrt_calc_btn, &QPushButton::clicked, this, &MainWindow::onNtCalcSqrt);
-    sqrt_layout->addWidget(sqrt_calc_btn);
+    sqrt_input_layout->addWidget(sqrt_calc_btn);
 
     QHBoxLayout* sqrt_res_layout = new QHBoxLayout();
     nt_sqrt_res = new QTextEdit();
@@ -524,18 +530,22 @@ void MainWindow::setupNtMd(){
     sqrt_res_layout->addWidget(nt_sqrt_res);
 
     QPushButton* sqrt_copy_btn = new QPushButton(tr("复制"));
-    sqrt_copy_btn->setFixedSize(50, 35);
+    sqrt_copy_btn->setFixedSize(80, 35);
     connect(sqrt_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopySqrt);
     sqrt_res_layout->addWidget(sqrt_copy_btn);
 
+
+    sqrt_layout->addLayout(sqrt_input_layout);
+    sqrt_layout->addLayout(sqrt_res_layout);
     layout->addWidget(sqrt_group);
-    layout->addLayout(sqrt_res_layout);
 
     // ========== 2. 分解质因数 ==========
     QGroupBox* factor_group = new QGroupBox(tr("分解质因数"));
+    QVBoxLayout *factor_layout = new QVBoxLayout(factor_group);
+
     QHBoxLayout* factor_input_layout = new QHBoxLayout();
     nt_factor_input = new QLineEdit();
-    nt_factor_input->setPlaceholderText(tr("请输入一个数"));
+    nt_factor_input->setPlaceholderText(tr("输入正整数"));
     nt_factor_input->setStyleSheet("font-size: 14px;");
     nt_factor_input->setFixedHeight(25);
     factor_input_layout->addWidget(nt_factor_input);
@@ -544,7 +554,7 @@ void MainWindow::setupNtMd(){
     factor_calc_btn->setFixedHeight(25);
     connect(factor_calc_btn, &QPushButton::clicked, this, &MainWindow::onNtCalcFactor);
     factor_input_layout->addWidget(factor_calc_btn);
-    factor_group->setLayout(factor_input_layout);
+    // factor_group->setLayout(factor_input_layout);
 
     QHBoxLayout* factor_res_layout = new QHBoxLayout();
     nt_factor_res = new QTextEdit();
@@ -555,24 +565,27 @@ void MainWindow::setupNtMd(){
     factor_res_layout->addWidget(nt_factor_res);
 
     QPushButton* factor_copy_btn = new QPushButton(tr("复制"));
-    factor_copy_btn->setFixedSize(50, 35);
+    factor_copy_btn->setFixedSize(80, 35);
     connect(factor_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyFactor);
     factor_res_layout->addWidget(factor_copy_btn);
 
+    factor_layout->addLayout(factor_input_layout);
+    factor_layout->addLayout(factor_res_layout);
     layout->addWidget(factor_group);
-    layout->addLayout(factor_res_layout);
 
     // ========== 3. 最大公因数 ==========
     QGroupBox* gcd_group = new QGroupBox(tr("最大公因数"));
+    QVBoxLayout *gcd_layout = new QVBoxLayout(gcd_group);
+
     QHBoxLayout* gcd_input_layout = new QHBoxLayout();
     nt_gcd1 = new QLineEdit();
-    nt_gcd1->setPlaceholderText(tr("数A"));
-    nt_gcd1->setFixedWidth(180);
+    nt_gcd1->setPlaceholderText(tr("正整数A"));
+    nt_gcd1->setFixedWidth(155);
     nt_gcd1->setFixedHeight(25);
     QLabel* comma1 = new QLabel(",");
     nt_gcd2 = new QLineEdit();
-    nt_gcd2->setPlaceholderText(tr("数B"));
-    nt_gcd2->setFixedWidth(180);
+    nt_gcd2->setPlaceholderText(tr("正整数B"));
+    nt_gcd2->setFixedWidth(155);
     nt_gcd2->setFixedHeight(25);
     QPushButton* gcd_calc_btn = new QPushButton(tr("计算"));
     gcd_calc_btn->setFixedWidth(80);
@@ -582,7 +595,7 @@ void MainWindow::setupNtMd(){
     gcd_input_layout->addWidget(comma1);
     gcd_input_layout->addWidget(nt_gcd2);
     gcd_input_layout->addWidget(gcd_calc_btn);
-    gcd_group->setLayout(gcd_input_layout);
+    // gcd_group->setLayout(gcd_input_layout);
 
     QHBoxLayout* gcd_res_layout = new QHBoxLayout();
     nt_gcd_res = new QTextEdit();
@@ -593,24 +606,27 @@ void MainWindow::setupNtMd(){
     gcd_res_layout->addWidget(nt_gcd_res);
 
     QPushButton* gcd_copy_btn = new QPushButton(tr("复制"));
-    gcd_copy_btn->setFixedSize(50, 35);
+    gcd_copy_btn->setFixedSize(80, 35);
     connect(gcd_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyGcd);
     gcd_res_layout->addWidget(gcd_copy_btn);
 
+    gcd_layout->addLayout(gcd_input_layout);
+    gcd_layout->addLayout(gcd_res_layout);
     layout->addWidget(gcd_group);
-    layout->addLayout(gcd_res_layout);
 
     // ========== 4. 最小公倍数 ==========
     QGroupBox* lcm_group = new QGroupBox(tr("最小公倍数"));
+    QVBoxLayout *lcm_layout = new QVBoxLayout(lcm_group);
+
     QHBoxLayout* lcm_input_layout = new QHBoxLayout();
     nt_lcm1 = new QLineEdit();
-    nt_lcm1->setPlaceholderText(tr("数A"));
-    nt_lcm1->setFixedWidth(180);
+    nt_lcm1->setPlaceholderText(tr("正整数A"));
+    nt_lcm1->setFixedWidth(155);
     nt_lcm1->setFixedHeight(25);
     QLabel* comma2 = new QLabel(",");
     nt_lcm2 = new QLineEdit();
-    nt_lcm2->setPlaceholderText(tr("数B"));
-    nt_lcm2->setFixedWidth(180);
+    nt_lcm2->setPlaceholderText(tr("正整数B"));
+    nt_lcm2->setFixedWidth(155);
     nt_lcm2->setFixedHeight(25);
     QPushButton* lcm_calc_btn = new QPushButton(tr("计算"));
     lcm_calc_btn->setFixedWidth(80);
@@ -620,7 +636,7 @@ void MainWindow::setupNtMd(){
     lcm_input_layout->addWidget(comma2);
     lcm_input_layout->addWidget(nt_lcm2);
     lcm_input_layout->addWidget(lcm_calc_btn);
-    lcm_group->setLayout(lcm_input_layout);
+    // lcm_group->setLayout(lcm_input_layout);
 
     QHBoxLayout* lcm_res_layout = new QHBoxLayout();
     nt_lcm_res = new QTextEdit();
@@ -631,12 +647,13 @@ void MainWindow::setupNtMd(){
     lcm_res_layout->addWidget(nt_lcm_res);
 
     QPushButton* lcm_copy_btn = new QPushButton(tr("复制"));
-    lcm_copy_btn->setFixedSize(50, 35);
+    lcm_copy_btn->setFixedSize(80, 35);
     connect(lcm_copy_btn, &QPushButton::clicked, this, &MainWindow::onNtCopyLcm);
     lcm_res_layout->addWidget(lcm_copy_btn);
 
+    lcm_layout->addLayout(lcm_input_layout);
+    lcm_layout->addLayout(lcm_res_layout);
     layout->addWidget(lcm_group);
-    layout->addLayout(lcm_res_layout);
 
     layout->addStretch();
     nt_md_panel->setStyleSheet(pretty_style);
@@ -729,23 +746,29 @@ void MainWindow::setupSet()
 bool MainWindow::eventFilter(QObject* obj, QEvent* event){
     if (event->type() == QEvent::KeyPress) {
         addLogLine(DEBUG, "Key event occured");
+        addIndent();
+
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
         int key = keyEvent->key();
+        addLogLine(DEBUG, "Key ID: " + QString::fromStdString(str(HP(key))));
 
         // 获取当前是哪个模式
         int current_index = stacked_widget->currentIndex();
-        addLogLine(DEBUG, "  Current index: "+QString::fromStdString(str(HP(current_index))));
+        addLogLine(DEBUG, "Current index: "+QString::fromStdString(str(HP(current_index))));
 
         // 数字 0-9
         if (key >= Qt::Key_0 && key <= Qt::Key_9) {
             QString num = QString::number(key - Qt::Key_0);
             if (current_index == 0) {
                 std_input->setText(std_input->text() + num);
-                addLogLine(DEBUG, "  Added '"+num+"' to input line");
+                addLogLine(INFO, "Added '"+num+"' to input line");
             } else if (current_index == 1) {
                 hp_input->setText(hp_input->text() + num);
-                addLogLine(DEBUG, "  Added '"+num+"' to input line");
+                addLogLine(INFO, "Added '"+num+"' to input line");
             }
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         }
 
@@ -756,12 +779,15 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
                 if (current_index == 0) {
                     std_input->clear();
                     std_output->clear();
-                    addLogLine(INFO, "  Cleared IO");
+                    addLogLine(INFO, "Cleared IO");
                 } else if (current_index == 1) {
                     hp_input->clear();
                     hp_output->clear();
-                    addLogLine(INFO, "  Cleared IO");
+                    addLogLine(INFO, "Cleared IO");
                 }
+
+                popIndent();
+                addLogLine(DEBUG, "Finishing handling this event");
                 return true;
             }
             break;
@@ -777,11 +803,14 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
             if (!current.isEmpty()) current.chop(1);
             if (current_index == 0) {
                 std_input->setText(current);
-                addLogLine(INFO, "  Chopped one char from input line");
+                addLogLine(INFO, "Chopped one char from input line");
             } else if (current_index == 1) {
                 hp_input->setText(current);
-                addLogLine(INFO, "  Chopped one char from input line");
+                addLogLine(INFO, "Chopped one char from input line");
             }
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         }
 
@@ -795,6 +824,9 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
             } else if (current_index == 1) {
                 HpMdCalc();
             }
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         }
 
@@ -805,68 +837,107 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event){
                 std_input->setText(std_input->text() + ".");
             }
             // 高精度模式不支持小数
-            addLogLine(INFO, "  Added '.' to input line");
+            addLogLine(INFO, "Added '.' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Plus:
             if (current_index == 0) std_input->setText(std_input->text() + "+");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "+");
-            addLogLine(INFO, "  Added '+' to input line");
+            addLogLine(INFO, "Added '+' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Minus:
             if (current_index == 0) std_input->setText(std_input->text() + "-");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "-");
-            addLogLine(INFO, "  Added '-' to input line");
+            addLogLine(INFO, "Added '-' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Asterisk:  // Shift + 8
             if (current_index == 0) std_input->setText(std_input->text() + "*");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "*");
-            addLogLine(INFO, "  Added '*' to input line");
+            addLogLine(INFO, "Added '*' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Slash:
             if (current_index == 0) std_input->setText(std_input->text() + "/");
             else if (current_index == 1) hp_input->setText(hp_input->text() + "/");
-            addLogLine(INFO, "  Added '/' to input line");
+            addLogLine(INFO, "Added '/' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_AsciiCircum:  // ^
             if(current_index == 0) std_input->setText(std_input->text() + "^");
             if (current_index == 1) hp_input->setText(hp_input->text() + "^");
-            addLogLine(INFO, "  Added '^' to input line");
+            addLogLine(INFO, "Added '^' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Percent:
             if (current_index == 1) hp_input->setText(hp_input->text() + "%");
-            addLogLine(INFO, "  Added an operator to standard/high-precision input line");
+            addLogLine(INFO, "Added an operator to standard/high-precision input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Ampersand:  // &
             if (current_index == 1) hp_input->setText(hp_input->text() + "&");
-            addLogLine(INFO, "  Added '&' to input line");
+            addLogLine(INFO, "Added '&' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Bar:  // |
             if (current_index == 1) hp_input->setText(hp_input->text() + "|");
-            addLogLine(INFO, "  Added '|' to input line");
+            addLogLine(INFO, "Added '|' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_Exclam:  // !
             if (current_index == 1) hp_input->setText(hp_input->text() + "!");
-            addLogLine(INFO, "  Added '!' to input line");
+            addLogLine(INFO, "Added '!' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_ParenLeft:
             if(current_index == 0) std_input->setText(std_input->text() + "(");
             if(current_index == 1) hp_input->setText(hp_input->text() + "(");
-            addLogLine(INFO, "  Added '(' to input line");
+            addLogLine(INFO, "Added '(' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         case Qt::Key_ParenRight:
             if(current_index == 0) std_input->setText(std_input->text() + ")");
             if(current_index == 1) hp_input->setText(hp_input->text() + ")");
-            addLogLine(INFO, "  Added ')' to input line");
+            addLogLine(INFO, "Added ')' to input line");
+
+            popIndent();
+            addLogLine(DEBUG, "Finishing handling this event");
             return true;
         }
     }
 
+    popIndent();
+    // addLogLine(DEBUG, "Finishing handling this event");
     return QMainWindow::eventFilter(obj, event);
 }
 
 void MainWindow::StdMdCalc(){
     addLogLine(DEBUG, "Got into StdMdCalc()");
     addIndent();
+
     std_output->setText(tr("正在计算中..."));
     std_output->repaint();
     QString expr = std_input->text();
@@ -875,6 +946,9 @@ void MainWindow::StdMdCalc(){
         res = StdCalcFunc((std_input->text()).toStdString());
     }catch(Err err_info){
         StdErrShow(err_info);
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from StdMdCalc()");
         return;
     }
     QString res_str = QString::fromStdString(doubleTOstr(res));
@@ -900,6 +974,9 @@ void MainWindow::HpMdCalc(){
         res = HpCalcFunc((hp_input->text()).toStdString());
     }catch(Err err_info){
         HpErrShow(err_info);
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from HpMdCalc()");
         return;
     }
     if(res.isEMPTY()) HpErrShow(Err(CALC_ERR, -1, -1));
@@ -910,7 +987,8 @@ void MainWindow::HpMdCalc(){
         if(res.size() > DIRECT_SHOW_LENGTH_LIMIT){
             sci_res_str = QString::fromStdString(numTOsci(res_std_str));
             saveResultToDesktop(res_str);
-            hp_output->setText(sci_res_str + '\n' + tr("精确结果已保存至桌面calculation_result.txt"));
+            hp_output->setText(sci_res_str + '\n'
+                               + tr("精确结果已保存至桌面calculation_result.txt"));
         }else{
             hp_output->setText(res_str);
         }
@@ -934,6 +1012,9 @@ void MainWindow::onNtCalcSqrt(){
         nt_sqrt_num->clear();
         nt_sqrt_num->setPlaceholderText(num);
         addLogLine(ERROR, "Empty input in sqrt");
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcSqrt()");
         return;
     }
     QString res;
@@ -943,6 +1024,9 @@ void MainWindow::onNtCalcSqrt(){
         NtSqrtErrShow(err_info);
         nt_sqrt_num->clear();
         nt_sqrt_num->setPlaceholderText(num);
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcSqrt()");
         return;
     }
     nt_sqrt_res->setText(res);
@@ -966,6 +1050,9 @@ void MainWindow::onNtCalcFactor(){
         nt_factor_input->clear();
         nt_factor_input->setPlaceholderText(num);
         addLogLine(ERROR, "Empty input in factor");
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcFactor()");
         return;
     }
     QString res;
@@ -975,6 +1062,9 @@ void MainWindow::onNtCalcFactor(){
         NtFactorErrShow(err_info);
         nt_factor_input->clear();
         nt_factor_input->setPlaceholderText(num);
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcFactor()");
         return;
     }
     nt_factor_res->setText(res);
@@ -999,6 +1089,9 @@ void MainWindow::onNtCalcGcd()
         nt_gcd1->clear(); nt_gcd1->setPlaceholderText(a);
         nt_gcd2->clear(); nt_gcd2->setPlaceholderText(b);
         addLogLine(ERROR, "Empty input in gcd");
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcGcd()");
         return;
     }
 
@@ -1009,6 +1102,9 @@ void MainWindow::onNtCalcGcd()
         NtGcdErrShow(err_info);
         nt_gcd1->clear(); nt_gcd1->setPlaceholderText(a);
         nt_gcd2->clear(); nt_gcd2->setPlaceholderText(b);
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcGcd()");
         return;
     }
     nt_gcd_res->setText(res);
@@ -1035,6 +1131,9 @@ void MainWindow::onNtCalcLcm()
         nt_lcm1->clear(); nt_lcm1->setPlaceholderText(a);
         nt_lcm2->clear(); nt_lcm2->setPlaceholderText(b);
         addLogLine(ERROR, "Empty input in lcm");
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcLcm()");
         return;
     }
 
@@ -1045,6 +1144,9 @@ void MainWindow::onNtCalcLcm()
         NtLcmErrShow(err_info);
         nt_lcm1->clear(); nt_lcm1->setPlaceholderText(a);
         nt_lcm2->clear(); nt_lcm2->setPlaceholderText(b);
+
+        popIndent();
+        addLogLine(DEBUG, "Exiting from onNtCalcLcm()");
         return;
     }
     nt_lcm_res->setText(res);
