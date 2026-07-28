@@ -16,8 +16,8 @@ A powerful multi-mode calculator with high-precision integer arithmetic, standar
 - Daily use with good precision
 
 ### High-Precision Mode
-- Arbitrary-precision integer arithmetic (up to 1e8 digits)
-- Supports `+ - * / ^ % & | !` (bitwise operations)
+- Arbitrary-precision integer arithmetic (up to 1e8 digits in theory)
+- Supports `+ - * / ^ %` and `& | !` (bitwise operations)
 - Automatic scientific notation for results over 100 digits
 - Automatically put the exact result over 100 digits to file on Desktop
 
