@@ -108,8 +108,9 @@ void double_expr_read(Token<double>* head, str ori_input_str){
         if(t<33 || t==',' || t=='_') continue;//忽略空格逗号下划线
         if(is_digit(t) || t == '.'){
             if(lst_ch == ')'){
+                popIndent();
+                addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                 throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                return;
             }
             else temp_num += t;
         }else{
@@ -118,8 +119,9 @@ void double_expr_read(Token<double>* head, str ori_input_str){
                 try{
                     num = strTOdouble(temp_num, pos_cnt);
                 }catch(Err err_info){
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                     throw err_info;
-                    return;
                 }
                 new_num_tk<double>(lst_tk, num);
                 temp_num = "";
@@ -132,8 +134,9 @@ void double_expr_read(Token<double>* head, str ori_input_str){
                     //这个字符当正负号
                     if(temp_num == "") temp_num += t;
                     else{
+                        popIndent();
+                        addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                         throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                        return;
                     }
                 }
             }
@@ -142,8 +145,9 @@ void double_expr_read(Token<double>* head, str ori_input_str){
                     new_op_tk(lst_tk, t, ori_lv[int(t)]+par_lv);
                 }
                 else{
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                    return;
                 }
             }
             else if(t == '('){
@@ -157,6 +161,8 @@ void double_expr_read(Token<double>* head, str ori_input_str){
                     par_lv += MAX_ORI_LV;
                 }
                 else{
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
                 }
             }
@@ -164,18 +170,21 @@ void double_expr_read(Token<double>* head, str ori_input_str){
                 if(is_digit(lst_ch) || lst_ch==')'){
                     par_lv -= MAX_ORI_LV;
                     if(par_lv < 0){
+                        popIndent();
+                        addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                         throw Err(REDUNDANT_RPAR, pos_cnt, pos_cnt);
-                        return;
                     }
                 }
                 else{
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                    return;
                 }
             }
             else{
+                popIndent();
+                addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
                 throw Err(UNKNOWN_CHAR, pos_cnt, pos_cnt);
-                return;
             }
         }
         lst_ch = t;
@@ -183,22 +192,25 @@ void double_expr_read(Token<double>* head, str ori_input_str){
     }
     pos_cnt--; // 最后一个字符
     if(par_lv > 0){
+        popIndent();
+        addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
         throw Err(REDUNDANT_LPAR, -1, -1);
-        return;
     }
     if(is_digit(lst_ch)){
         //把数存起来
         try{
             num = strTOdouble(temp_num, pos_cnt);
         }catch(Err err_info){
+            popIndent();
+            addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
             throw err_info;
-            return;
         }
         new_num_tk<double>(lst_tk, num);
         temp_num = "";
     }else if(lst_ch != ')'){
+        popIndent();
+        addLogLine(DEBUG, "Exiting from double_expr_read() abnormally");
         throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-        return;
     }
 
     popIndent();
@@ -219,8 +231,9 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
         if(t<33 || t==',' || t=='_') continue;//忽略空格逗号下划线
         if(is_digit(t)){
             if(lst_ch == ')'){
+                popIndent();
+                addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                 throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                return;
             }
             else temp_num += t;
         }else{
@@ -228,8 +241,9 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
                 //把数存起来
                 num = HP(temp_num);
                 if(num.isEMPTY()){
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                    return;
                 }
                 new_num_tk<HP>(lst_tk, num);
                 temp_num = "";
@@ -242,8 +256,9 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
                     //这个字符当正负号
                     if(temp_num == "") temp_num += t;
                     else{
+                        popIndent();
+                        addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                         throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                        return;
                     }
                 }
             }
@@ -252,8 +267,9 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
                     new_op_tk(lst_tk, t, ori_lv[int(t)]+par_lv);
                 }
                 else{
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                    return;
                 }
             }
             else if(t == '('){
@@ -267,6 +283,8 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
                     par_lv += MAX_ORI_LV;
                 }
                 else{
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
                 }
             }
@@ -274,18 +292,21 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
                 if(is_digit(lst_ch) || lst_ch==')'){
                     par_lv -= MAX_ORI_LV;
                     if(par_lv < 0){
+                        popIndent();
+                        addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                         throw Err(REDUNDANT_RPAR, pos_cnt, pos_cnt);
-                        return;
                     }
                 }
                 else{
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                     throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-                    return;
                 }
             }
             else{
+                popIndent();
+                addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
                 throw Err(UNKNOWN_CHAR, pos_cnt, pos_cnt);
-                return;
             }
         }
         lst_ch = t;
@@ -293,21 +314,24 @@ void hp_expr_read(Token<HP>* head, str ori_input_str){
     }
     pos_cnt--; // 最后一个字符
     if(par_lv > 0){
+        popIndent();
+        addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
         throw Err(REDUNDANT_LPAR, -1, -1);
-        return;
     }
     if(is_digit(lst_ch)){
         //把数存起来
         num = HP(temp_num);
         if(num.isEMPTY()){
+            popIndent();
+            addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
             throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-            return;
         }
         new_num_tk<HP>(lst_tk, num);
         temp_num = "";
     }else if(lst_ch != ')'){
+        popIndent();
+        addLogLine(DEBUG, "Exiting from hp_expr_read() abnormally");
         throw Err(INPUT_ERR, pos_cnt, pos_cnt);
-        return;
     }
 
     popIndent();
@@ -321,19 +345,16 @@ void math_check(T a, char op, T b){
     if(op == '/'){
         if(b == 0){
             throw Err(DIV_BY_ZERO, -1, -1);
-            return;
         }
     }
     if(op == '%'){
         if(b == 0){
             throw Err(MOD_BY_ZERO, -1, -1);
-            return;
         }
     }
     if(op == '^'){
         if(b < 0){
             throw Err(NEGA_POWER, -1, -1);
-            return;
         }
         if(a==0 && b==0){
             throw Err(ZERO_POW_ZERO, -1, -1);
@@ -342,7 +363,6 @@ void math_check(T a, char op, T b){
             if(a!=0 && a!=1 && a!=-1){
                 if(b.size() > POW_LIMIT){
                     throw Err(LARGE_NUM, -1, -1);
-                    return;
                 }
             }
         }
@@ -371,8 +391,9 @@ T calculate(Token<T>* head){
         tail = tail->next;
     }
     if(num_cnt != op_cnt+1){
+        popIndent();
+        addLogLine(DEBUG, "Exiting from calculate() abnormally");
         throw Err(EXPR_ERR, -1, -1);
-        return 0;
     }
 
     for(cur_lv=max_lv; cur_lv; cur_lv--){
@@ -385,8 +406,9 @@ T calculate(Token<T>* head){
                 try{
                     math_check<T>(a, op, b);
                 }catch(Err err_info){
+                    popIndent();
+                    addLogLine(DEBUG, "Exiting from calculate() abnormally");
                     throw err_info;
-                    return 0;
                 }
 
                 if(op == '+') c = a+b;
@@ -397,8 +419,9 @@ T calculate(Token<T>* head){
                     if constexpr (std::is_same_v<T, HP>){
                         c = a % b;
                     }else{
+                        popIndent();
+                        addLogLine(DEBUG, "Exiting from calculate() abnormally");
                         throw Err(FLOAT_MOD, -1, -1);
-                        return 0;
                     }
                 }
                 if(op == '^'){
@@ -428,8 +451,9 @@ T calculate(Token<T>* head){
     }
     
     if(!(head->next->next == tail)){
+        popIndent();
+        addLogLine(DEBUG, "Exiting from calculate() abnormally");
         throw Err(EXPR_ERR, -1, -1);
-        return 0;
 	}
     c = head->next->num;
 
