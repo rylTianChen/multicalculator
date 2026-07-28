@@ -13,17 +13,16 @@ typedef std::string str;
 
 constexpr int DB_MAXN_LEN = 105;
 str doubleTOstr(double ori_num){
-    char *s = new char[DB_MAXN_LEN]();
+    char s[DB_MAXN_LEN];
     sprintf(s, "%.10lf", ori_num);
     int i = strlen(s);
     //去除小数点后多余的0
     for(i--; i; i--){
-        if(s[i] == '.') break;
-        if(s[i] == '0') s[i] = 0;
+        if(s[i] == '0') s[i] == 0;
+        else break;
     }
     if(s[i] == '.') s[i] = 0;
     str str_num(s);
-    delete[] s;
     return str_num;
 }
 
