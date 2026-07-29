@@ -5,7 +5,7 @@ QString indent = "";
 
 void initLog(){
     static QString logPath = QCoreApplication::applicationDirPath() + "/log/log.txt";
-    static QString version = "1.2.2";
+    static QString version = "1.2.3";
 
     // 确保目录存在
     QFileInfo fileInfo(logPath);

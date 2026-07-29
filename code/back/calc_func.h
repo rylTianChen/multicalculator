@@ -4,8 +4,9 @@
 #include<string>
 #include<QString>
 typedef std::string str;
+typedef long long ll;
 #include"expr_func.h"
-#include"tools\init_func.h"
+#include"tools/init_func.h"
 #include"tools/hpcalc.h"
 #include"log.h"
 
@@ -93,6 +94,14 @@ HP HpCalcFunc(str ori_input_str){
     return res;
 }
 
+ll fast_pow(ll a, int b){
+    ll ans = 1;
+    while(b > 0){
+        if(b & 1) ans *= a, b--;
+        else a = a*a, b >>= 1;
+    }
+    return ans;
+}
 str NtSqrtFunc(str ori_input_str){
     addLogLine(DEBUG, "Got into NtSqrtFunc()");
     addIndent();
@@ -111,8 +120,8 @@ str NtSqrtFunc(str ori_input_str){
     }
     if(ori_num == 1) return "1";
 
-    HP coef = 1, sqrt_num = 1;
-    HP i, n = ori_num;
+    ll coef = 1, sqrt_num = 1;
+    ll i, n = ori_num;
     int exp;
     for(i=2; i*i<=n; ){
         exp = 0;
@@ -121,7 +130,7 @@ str NtSqrtFunc(str ori_input_str){
             exp++;
         }
         if(exp > 0){
-            coef *= HP_pow(i, exp>>1); // exp>>1 == exp/2
+            coef *= fast_pow(i, exp>>1); // exp>>1 == exp/2
             if(exp & 1){ // exp&1 == exp%2==1
                 sqrt_num *= i;
             }
@@ -133,9 +142,9 @@ str NtSqrtFunc(str ori_input_str){
     sqrt_num *= n;
 
     str res = "";
-    if(coef > 1) res += str(coef);
+    if(coef > 1) res += str(HP(coef));
     if(sqrt_num > 1){
-        res += "√" + str(sqrt_num);
+        res += "√" + str(HP(sqrt_num));
     }
     addLogLine(INFO, "Result: "+QString::fromStdString(res));
 
@@ -160,10 +169,13 @@ str NtFactorFunc(str ori_input_str){
         throw Err(LARGE_NUM, -1, -1);
     }
     if(ori_num == 1) return "1";
+
     char is_first_factor = true;
-    HP i, n = ori_num; int exp = 0;
+    ll i, n = ori_num;
+    int exp = 0;
     str res = "";
     for(i=2; i*i<=n; ){
+        exp = 0;
         while(n%i == 0){
             n /= i;
             exp++;
@@ -171,17 +183,16 @@ str NtFactorFunc(str ori_input_str){
         if(exp > 0){
             if(is_first_factor) is_first_factor = false;
             else res += " * ";
-            res += str(i);
+            res += str(HP(i));
             if(exp > 1) res += "^"+str(HP(exp));
         }
 
         if(i == 2) i++;
         else i += 2; // 优化循环次数
-        exp = 0;
     }
     if (n > 1) {
         if (!is_first_factor) res += " * ";
-        res += str(n);
+        res += str(HP(n));
     }
     addLogLine(INFO, "Result: "+QString::fromStdString(res));
 
@@ -189,8 +200,8 @@ str NtFactorFunc(str ori_input_str){
     addLogLine(DEBUG, "Exiting from NtFactorFunc()");
     return res;
 }
-HP hp_gcd(HP a, HP b){
-    HP t;
+ll gcd(ll a, ll b){
+    ll t;
     while(b != 0){
         t = a;
         a = b, b = t%b;
@@ -230,15 +241,15 @@ str NtGcdFunc(str ori_str1, str ori_str2){
     }
 
     if(a==1 || b==1) return "1";
-    HP gcd_num = hp_gcd(a, b);
-    addLogLine(INFO, "Result: "+QString::fromStdString(str(gcd_num)));
+    ll gcd_num = gcd(ll(a), ll(b));
+    addLogLine(INFO, "Result: "+QString::fromStdString(str(HP(gcd_num))));
 
     popIndent();
     addLogLine(DEBUG, "Exiting from NtGcdFunc()");
-    return str(gcd_num);
+    return str(HP(gcd_num));
 }
-HP hp_lcm(HP a, HP b){
-    return a*b/hp_gcd(a, b);
+HP lcm(HP a, HP b){
+    return a*b/gcd(ll(a), ll(b));
 }
 str NtLcmFunc(str ori_str1, str ori_str2){
     addLogLine(DEBUG, "Got into NtLcmFunc()");
@@ -270,7 +281,7 @@ str NtLcmFunc(str ori_str1, str ori_str2){
     }
 
     if(a==1 || b==1) return "1";
-    HP lcm_num = hp_lcm(a, b);
+    HP lcm_num = lcm(a, b);
     addLogLine(INFO, "Result: "+QString::fromStdString(str(lcm_num)));
 
     popIndent();

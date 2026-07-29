@@ -6,10 +6,10 @@ typedef std::string str;
 #include<cmath>
 #include<type_traits>
 
-#include"tools\hpcalc.h"
+#include"tools/hpcalc.h"
 typedef grnum::HP HP;
-#include"tools\numch_func.h"
-#include"tools\convert_func.h"
+#include"tools/numch_func.h"
+#include"tools/convert_func.h"
 #include"log.h"
 
 
@@ -88,7 +88,7 @@ void clear_tk(Token<T>* head){
         delete del;
     }
     delete head;
-    delete tmp;
+    delete tmp; // tmp == tail
 
     addLogLine(DEBUG, "All tokens cleared");
 }
