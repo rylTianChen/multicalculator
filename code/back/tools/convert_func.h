@@ -18,7 +18,7 @@ str doubleTOstr(double ori_num){
     int i = strlen(s);
     //去除小数点后多余的0
     for(i--; i; i--){
-        if(s[i] == '0') s[i] == 0;
+        if(s[i] == '0') s[i] = 0;
         else break;
     }
     if(s[i] == '.') s[i] = 0;
