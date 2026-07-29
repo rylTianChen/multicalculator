@@ -5,10 +5,10 @@
 #include <QStandardPaths>
 #include <QTextStream>
 // #include<string>
-#include"back\calc_func.h"
+#include"back/calc_func.h"
 #include"back/io_func.h"
-#include"back\tools\convert_func.h"
-#include"back\tools\err.h"
+#include"back/tools/convert_func.h"
+#include"back/tools/err.h"
 // #include"back\tools\hpcalc.h"
 #include"back/log.h"
 
@@ -272,7 +272,7 @@ void MainWindow::setupStdMd(){
     // 输入框
     std_input = new QLineEdit();
     std_input->setPlaceholderText(tr("输入表达式"));
-    std_input->setStyleSheet("font-size: 18px; padding: 8px;");
+    std_input->setStyleSheet("font-size: 20px; padding: 8px;");
     std_input->setReadOnly(true);
     layout->addWidget(std_input);
 
@@ -281,7 +281,7 @@ void MainWindow::setupStdMd(){
     std_output = new QTextEdit();
     std_output->setReadOnly(true);
     std_output->setPlaceholderText(tr("计算结果"));
-    std_output->setStyleSheet("font-size: 16px; background-color: #f5f5f5;");
+    std_output->setStyleSheet("font-size: 20px; background-color: #f5f5f5;");
     std_output->setMaximumHeight(100);
     output_layout->addWidget(std_output);
 
@@ -397,7 +397,7 @@ void MainWindow::setupHpMd(){
     hp_output = new QTextEdit();
     hp_output->setReadOnly(true);
     hp_output->setPlaceholderText(tr("计算结果"));
-    hp_output->setStyleSheet("font-size: 16px; background-color: #f5f5f5;");
+    hp_output->setStyleSheet("font-size: 18px; background-color: #f5f5f5;");
     hp_output->setMaximumHeight(100);
     output_layout->addWidget(hp_output);
 

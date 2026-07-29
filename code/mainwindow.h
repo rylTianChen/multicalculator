@@ -23,7 +23,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 
-#include"back\tools\err.h"
+#include"back/tools/err.h"
 
 class MainWindow : public QMainWindow{
     Q_OBJECT // 宏,包含了一大堆东西
